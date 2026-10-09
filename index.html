@@ -208,6 +208,11 @@ input:hover, select:hover, textarea:hover { border-color: var(--ink2); }
 .lrow { padding: 6px 0; border-top: 1px solid var(--line2); }
 .lrow .n { padding-top: 9px; color: var(--ink2); font-size: 13px; text-align: right; }
 .cols-req { grid-template-columns: 26px 190px minmax(0, 1fr) 84px 180px 34px; }
+.cols-ka { grid-template-columns: 26px minmax(0, 1fr) 84px 180px 34px; }
+.cols-sk { grid-template-columns: 26px 160px minmax(0, 1fr) 180px 34px; }
+.blk { margin: 22px 0 6px; max-width: 900px; }
+.blk .bt { font-weight: 700; font-size: 14.5px; color: var(--ink); }
+.list > .blk:first-of-type { margin-top: 8px; }
 .lfoot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: flex-start; }
 details.paste { margin-top: 10px; max-width: 900px; }
 details.paste summary { cursor: pointer; color: var(--accent); font-weight: 500; }
@@ -325,7 +330,7 @@ table.ref .id { font-size: 12px; }
   .cell:nth-child(n+3) { border-top-width: 4px; }
   .fgrid, .fgrid.three { grid-template-columns: 1fr; }
   .choices, .choices.two { grid-template-columns: 1fr; }
-  .cols-req { grid-template-columns: 1fr 34px; }
+  .cols-req, .cols-ka, .cols-sk { grid-template-columns: 1fr 34px; }
   .lhead { display: none; }
   .lrow .n { display: none; }
   .lrow > * { grid-column: 1; }
@@ -378,6 +383,10 @@ table.ref .id { font-size: 12px; }
   #report .lrow .n { padding-top: 1pt; font-size: 8pt; }
   #report .lhead { font-size: 7.5pt; }
   #report .cols-req { grid-template-columns: 16px 112px minmax(0, 1fr) 46px 76px; }
+  #report .cols-ka { grid-template-columns: 16px minmax(0, 1fr) 46px 76px; }
+  #report .cols-sk { grid-template-columns: 16px 76px minmax(0, 1fr) 76px; }
+  #report .blk { margin: 6pt 0 2pt; }
+  #report .blk .bt { font-size: 9pt; }
   #report .counts { margin: 2pt 0; gap: 4pt 6pt; }
   #report .pill { padding: 2pt 8pt; min-width: 0; }
   #report .pill b { font-size: 10pt; }
@@ -547,6 +556,10 @@ C.areas = [
   { v: "Key accountability", id: "Tanggung jawab utama" },
   { v: "Hard skill", id: "Keahlian teknis" },
   { v: "Soft skill", id: "Keahlian non-teknis" },
+];
+C.skillTypes = [
+  { v: "Soft skill", id: "Keahlian non-teknis" },
+  { v: "Hard skill", id: "Keahlian teknis" },
 ];
 C.ratings = [
   { v: "Below expectation", id: "Di bawah harapan", tone: "bad" },
@@ -764,12 +777,22 @@ function isNum(v) { return typeof v === "number" && !isNaN(v); }
 const AREA_OLD = { "Competency": "Soft skill", "Relationship & authority": "Soft skill", "Technical knowledge": "Hard skill", "Certification": "Hard skill", "Experience": "Hard skill" };
 const normArea = (a) => AREA_OLD[a] || a;
 
-function newSkill() {
-  return { id: uid(), area: "", name: "", weight: "", level: "", rating: "", note: "",
+const KA = "Key accountability";
+const isKA = (x) => x.area === KA;
+/* A requirement list keeps its Key accountability rows first, then the skill rows, so the numbers read the same in every step. */
+const groupSort = (list) => list.filter(isKA).concat(list.filter((x) => !isKA(x)));
+function placeIndex(list, grp) {
+  if (grp !== "ka") return list.length;
+  let at = 0;
+  list.forEach((x, i) => { if (isKA(x)) at = i + 1; });
+  return at;
+}
+function newSkill(area) {
+  return { id: uid(), area: area || "", name: "", weight: "", level: "", rating: "", note: "",
     pd: { objective: "", intervention: "", info: "", date: "", status: "", notes: "" } };
 }
-function newReq() {
-  return { id: uid(), area: "", text: "", weight: "", level: "", today: "", gap: "", objective: "", intervention: "", info: "" };
+function newReq(area) {
+  return { id: uid(), area: area || "", text: "", weight: "", level: "", today: "", gap: "", objective: "", intervention: "", info: "" };
 }
 function newExtra() {
   return { id: uid(), gap: "", objective: "", intervention: "", info: "", date: "", status: "", notes: "" };
@@ -779,8 +802,8 @@ function defaultState() {
   return {
     app: APP_ID, v: 1,
     meta: { employee: "", division: "", assessor: "", date: todayISO() },
-    cur: { role: "", skills: Array.from({ length: 6 }, newSkill) },
-    tgt: { role: "", reqs: Array.from({ length: 8 }, newReq) },
+    cur: { role: "", skills: [KA, KA, KA, "", "", ""].map((a) => newSkill(a)) },
+    tgt: { role: "", reqs: [KA, KA, KA, KA, "", "", "", ""].map((a) => newReq(a)) },
     pdExtra: [],
     ta: { impact: null, scarcity: null, dependency: null, vacancy: "", perf: "", agility: null, leadership: null, cross: null, aspiration: null },
     pipe: { pathway: "", rationale: "", notes: "" },
@@ -811,6 +834,7 @@ function normalize(raw) {
       b.pd = { objective: str(p.objective), intervention: str(p.intervention), info: str(p.info) || str(p.evidence), date: str(p.date), status: str(p.status), notes: str(p.notes) };
       return b;
     });
+    d.cur.skills = groupSort(d.cur.skills);
   }
   const tgt = o.tgt || {};
   d.tgt.role = str(tgt.role);
@@ -824,6 +848,7 @@ function normalize(raw) {
       b.weight = isNum(x.weight) ? String(x.weight) : str(x.weight);
       return b;
     });
+    d.tgt.reqs = groupSort(d.tgt.reqs);
   }
   if (Array.isArray(o.pdExtra)) {
     d.pdExtra = o.pdExtra.map((x) => {
@@ -1051,7 +1076,7 @@ function issues(s, r) {
   if (!s.cur.role.trim()) add("s1", "Enter the name of the candidate's current role.", "Isi nama role kandidat saat ini.");
   if (!r.skills.length) add("s1", "List the requirements of the current role.", "Daftar persyaratan role saat ini.");
   const sk = r.skills.filter((x) => !x.area || !x.level).length;
-  if (sk) add("s1", sk + " requirement(s) still need an area and a requirement level.", sk + " persyaratan masih butuh bidang dan tingkat kebutuhan.");
+  if (sk) add("s1", sk + " requirement(s) still need a requirement level or, for a skill, a type (Soft or Hard).", sk + " persyaratan masih butuh tingkat kebutuhan atau, untuk keahlian, jenis (Soft atau Hard).");
   if (r.cw.wOn && r.cw.wMissing > 0) add("s1", r.cw.wMissing + " Key accountability row(s) have no weight. Fill every weight, or clear them all.", r.cw.wMissing + " baris Key accountability belum punya bobot. Isi semua bobot, atau kosongkan semuanya.", true);
   else if (r.cw.wOn && Math.abs(r.cw.wTotal - 100) > 0.01) add("s1", "Key accountability weights total " + r.cw.wTotal + ", not 100.", "Total bobot Key accountability " + r.cw.wTotal + ", bukan 100.", true);
   if (r.skills.length && r.rate.none) add("s2", r.rate.none + " requirement(s) not rated yet.", r.rate.none + " persyaratan belum dinilai.");
@@ -1270,7 +1295,7 @@ const levelTag = (lv) => (lv ? `<span class="tag${lv === "Mandatory" ? " lvl-m" 
 const addBtn = (act, en, id) => (CTX.ro ? "" : `<button type="button" class="btn small" data-act="${act}">${T(en, id)}</button>`);
 const delBtn = (act, i) => (CTX.ro ? "" : `<button type="button" class="x" data-act="${act}" data-i="${i}" aria-label="Remove this row / Hapus baris ini" title="Remove / Hapus">×</button>`);
 
-/* Weight (%) cell for step 1B. Only Key accountability rows take a weight. */
+/* Weight (%) cell of a requirement row. Only Key accountability rows take a weight. */
 function ctlWeight(i, x, base) {
   base = base || "tgt.reqs";
   const w = wOf(x);
@@ -1327,21 +1352,50 @@ function viewStart(s, r) {
 }
 
 /* ---------- 1. Role Standard ---------- */
+/* One requirement list shown as two blocks: A Key accountability (with weight) and B Skills (Soft or Hard, no weight).
+   The rows stay in one array, Key accountability first; the numbers run on from A to B and count only the filled rows, as in the other steps. */
+function reqBlocks(rows, o) {
+  const p = o.bind, k = o.key, who = o.who;
+  const idx = rows.map((x, i) => [x, i]);
+  const pick = (ka) => idx.filter(([x]) => isKA(x) === ka && (!CTX.ro || String(x[k]).trim()));
+  const A = pick(true), B = pick(false);
+  let num = 0;
+  const numOf = (x) => (String(x[k]).trim() ? ++num : "");
+  const blockHead = (en, id, ne, ni) => `<div class="blk"><div class="bt">${T(en, id)}</div>${noteP(ne, ni)}</div>`;
+  const reqHead = T("Requirement (from the " + o.role + " role's Job Description)", "Persyaratan (dari Job Description role " + (o.role === "target" ? "tujuan" : "saat ini") + ")");
+  const aRows = A.map(([x, i]) => { const n = numOf(x); return `<div class="lrow cols-ka"><span class="n">${n}</span>` +
+    ctlArea(`${p}.${i}.${k}`, x[k], { aria: "Key accountability " + n, ph: n === 1 ? ph(o.phKa) : "" }) +
+    ctlWeight(i, x, p) +
+    ctlSelect(`${p}.${i}.level`, x.level, C.levels, { aria: "Requirement level" }) + delBtn(o.del, i) + `</div>`; }).join("");
+  const bRows = B.map(([x, i]) => { const n = numOf(x); return `<div class="lrow cols-sk"><span class="n">${n}</span>` +
+    ctlSelect(`${p}.${i}.area`, x.area, C.skillTypes, { aria: "Type of skill" }) +
+    ctlArea(`${p}.${i}.${k}`, x[k], { aria: "Skill " + n, ph: "" }) +
+    ctlSelect(`${p}.${i}.level`, x.level, C.levels, { aria: "Requirement level" }) + delBtn(o.del, i) + `</div>`; }).join("");
+  const paste = (grp) => CTX.ro ? "" : `<details class="paste"><summary>${T("Paste a list instead", "Atau tempel sebuah daftar")}</summary><textarea id="paste-${who}-${grp}" rows="4" placeholder="One per line / Satu per baris"></textarea>` +
+    `<button type="button" class="btn small" data-act="paste-rows" data-i="${who}:${grp}">${T("Add the lines as rows", "Tambahkan baris sebagai persyaratan")}</button></details>`;
+  const foot = (grp, en, id) => CTX.ro ? "" : `<div class="lfoot">${`<button type="button" class="btn small" data-act="add-row" data-i="${who}:${grp}">${T(en, id)}</button>`}</div>` + paste(grp);
+  const out = [];
+  if (!CTX.ro || A.length) out.push(blockHead("Key accountabilities", "Tanggung jawab utama", o.noteA[0], o.noteA[1]) +
+    `<div class="lhead lrow cols-ka" style="border:0"><span></span><span>${reqHead}</span><span>${T("Weight (%)", "Bobot (%)")}</span><span>${T("Requirement level", "Tingkat kebutuhan")}</span><span></span></div>` + aRows +
+    (CTX.ro ? "" : `<div class="wsum" data-for="${who}">${o.weightNote}</div>`) + foot("ka", "Add a Key accountability", "Tambah Key accountability"));
+  if (!CTX.ro || B.length) out.push(blockHead("Skills", "Keahlian", o.noteB[0], o.noteB[1]) +
+    `<div class="lhead lrow cols-sk" style="border:0"><span></span><span>${T("Type", "Jenis")}</span><span>${T("Skill", "Keahlian")}</span><span>${T("Requirement level", "Tingkat kebutuhan")}</span><span></span></div>` + bRows +
+    foot("sk", "Add a skill", "Tambah keahlian"));
+  if (!CTX.ro) out.push(`<div class="lfoot"><button type="button" class="btn small" data-act="fill-levels" data-i="${who}">${T("Set empty levels to Mandatory", "Isi tingkat yang kosong dengan Mandatory")}</button></div>`);
+  return out.join("");
+}
+
 function viewS1(s, r) {
-  const skills = CTX.ro ? s.cur.skills.map((x, i) => [x, i]).filter(([x]) => x.name.trim()) : s.cur.skills.map((x, i) => [x, i]);
   const a = `<div class="list">` +
     field(lbl("Role name", "Nama role"), ctlText("cur.role", s.cur.role, { ph: ph("e.g. OPPM Specialist") })) +
-    `<div class="lhead lrow cols-req" style="border:0"><span></span><span>${T("Area", "Bidang")}</span><span>${T("Requirement (from the current role's Job Description)", "Persyaratan (dari Job Description role saat ini)")}</span><span>${T("Weight (%)", "Bobot (%)")}</span><span>${T("Requirement level", "Tingkat kebutuhan")}</span><span></span></div>` +
-    skills.map(([x, i], n) => `<div class="lrow cols-req"><span class="n">${n + 1}</span>` +
-      ctlSelect(`cur.skills.${i}.area`, x.area, C.areas, { aria: "Area" }) +
-      ctlArea(`cur.skills.${i}.name`, x.name, { aria: "Requirement " + (n + 1), ph: n === 0 ? ph("e.g. Prepares the operational plan (workload, capacity, productivity)") : "" }) +
-      ctlWeight(i, x, "cur.skills") +
-      ctlSelect(`cur.skills.${i}.level`, x.level, C.levels, { aria: "Requirement level" }) + delBtn("del-skill", i) + `</div>`).join("") +
-    (CTX.ro ? "" : `<div class="wsum" data-for="cur">${weightNote(r, true)}</div>`) +
-    (CTX.ro ? "" : `<div class="lfoot">${addBtn("add-skill", "Add a requirement", "Tambah persyaratan")}${addBtn("fill-levels-skill", "Set empty levels to Mandatory", "Isi tingkat yang kosong dengan Mandatory")}</div>` +
-      `<details class="paste"><summary>${T("Paste a list instead", "Atau tempel sebuah daftar")}</summary><textarea id="paste-skills" rows="5" placeholder="One requirement per line / Satu persyaratan per baris"></textarea>` +
-      `<button type="button" class="btn small" data-act="paste-skills">${T("Add the lines as rows", "Tambahkan baris sebagai persyaratan")}</button></details>` +
-      noteP("Weight (%) is optional and only for Key accountability rows. Copy the % Bobot from the Job Description of the current role; the weights should total 100. The Performance in step 4 is averaged from the Key accountability rows only; the weights make the bigger ones count more. Soft skill and Hard skill ratings are not averaged in, but one rated Below holds the Performance at Meets (it cannot be Exceeds).", "Bobot (%) bersifat opsional dan hanya untuk baris Key accountability. Salin % Bobot dari Job Description role saat ini; total bobot sebaiknya 100. Kinerja di step 4 dirata-rata hanya dari baris Key accountability; bobot membuat yang lebih besar dihitung lebih berat. Rating Soft skill dan Hard skill tidak ikut dirata-rata, tetapi satu yang dinilai Di bawah menahan Kinerja di Meets (tidak bisa Exceeds).")) +
+    reqBlocks(s.cur.skills, {
+      bind: "cur.skills", key: "name", who: "cur", del: "del-skill", role: "current", weightNote: weightNote(r, true),
+      phKa: "e.g. Prepares the operational plan (workload, capacity, productivity)",
+      noteA: ["The results the role is expected to deliver. Weight (%) is optional: copy the % Bobot from the Job Description; the weights should total 100. The Performance in step 4 is averaged from these rows only; the weights make the bigger ones count more.",
+        "Hasil yang diharapkan dari role ini. Bobot (%) bersifat opsional: salin % Bobot dari Job Description; total bobot sebaiknya 100. Kinerja di step 4 dirata-rata hanya dari baris ini; bobot membuat yang lebih besar dihitung lebih berat."],
+      noteB: ["What the role needs to deliver them: Soft skill or Hard skill, no weight. These ratings are not averaged into the Performance, but one rated Below holds the Performance at Meets (it cannot be Exceeds).",
+        "Yang dibutuhkan role untuk mencapainya: Soft skill atau Hard skill, tanpa bobot. Rating ini tidak ikut dirata-rata ke Kinerja, tetapi satu yang dinilai Di bawah menahan Kinerja di Meets (tidak bisa Exceeds)."],
+    }) +
     `</div>`;
 
   return head("1", "Role Standard: what the CURRENT role requires", "Standar Role: apa yang dibutuhkan role SAAT INI",
@@ -1354,7 +1408,7 @@ function viewS1(s, r) {
 function viewS2(s, r) {
   let body;
   if (!r.skills.length) {
-    body = `<div class="empty">${T("No requirements yet. List the requirements of the current role in step 1, part A.", "Belum ada persyaratan. Daftar persyaratan role saat ini di step 1, bagian A.")}${CTX.ro ? "" : `<br>${gotoBtn("s1", "Go to step 1", "Ke step 1")}`}</div>`;
+    body = `<div class="empty">${T("No requirements yet. List the requirements of the current role in step 1.", "Belum ada persyaratan. Daftar persyaratan role saat ini di step 1.")}${CTX.ro ? "" : `<br>${gotoBtn("s1", "Go to step 1", "Ke step 1")}`}</div>`;
   } else {
     let n = 0;
     body = `<div class="counts"><div class="pill t-good"><b>${r.rate.Exceeds}</b>${T("Exceeds", "Melebihi")}</div><div class="pill t-good"><b>${r.rate.Meets}</b>${T("Meets", "Sesuai")}</div><div class="pill t-bad"><b>${r.rate.Below}</b>${T("Below", "Di bawah")}</div>${r.rate.none ? `<div class="pill"><b>${r.rate.none}</b>${T("Not rated", "Belum dinilai")}</div>` : ""}</div>` +
@@ -1509,18 +1563,14 @@ function reqTable(s, r) {
   const donors = CTX.ro || s.tgt.reqs.some((x) => x.text.trim()) ? [] : CTX.cands.map((c, i) => [c, i]).filter(([c]) => c !== s && c.tgt.reqs.some((x) => x.text.trim()));
   const copy = donors.length ? `<div class="copybar">${donors.map(([c, i]) => `<button type="button" class="btn small" data-act="copy-reqs" data-i="${i}">${T("Copy the requirements from " + candName(c, i), "Salin persyaratan dari " + candName(c, i))}</button>`).join("")}</div>` : "";
   return copy + `<div class="list">` +
-    `<div class="lhead lrow cols-req" style="border:0"><span></span><span>${T("Area", "Bidang")}</span><span>${T("Requirement (from the target role's Job Description)", "Persyaratan (dari Job Description role tujuan)")}</span><span>${T("Weight (%)", "Bobot (%)")}</span><span>${T("Requirement level", "Tingkat kebutuhan")}</span><span></span></div>` +
-    reqs.map(([x, i], n) => `<div class="lrow cols-req"><span class="n">${n + 1}</span>` +
-      ctlSelect(`tgt.reqs.${i}.area`, x.area, C.areas, { aria: "Area" }) +
-      ctlArea(`tgt.reqs.${i}.text`, x.text, { aria: "Requirement " + (n + 1), ph: n === 0 ? ph("e.g. Leads KPI formulation and approval for all Operations units") : "" }) +
-      ctlWeight(i, x) +
-      ctlSelect(`tgt.reqs.${i}.level`, x.level, C.levels, { aria: "Requirement level" }) + delBtn("del-req", i) + `</div>`).join("") +
-    (CTX.ro ? "" : `<div class="wsum" data-for="tgt">${weightNote(r)}</div>`) +
-    (CTX.ro ? "" : `<div class="lfoot">${addBtn("add-req", "Add a requirement", "Tambah persyaratan")}${addBtn("fill-levels-req", "Set empty levels to Mandatory", "Isi tingkat yang kosong dengan Mandatory")}</div>` +
-      `<details class="paste"><summary>${T("Paste a list instead", "Atau tempel sebuah daftar")}</summary><textarea id="paste-reqs" rows="6" placeholder="One requirement per line / Satu persyaratan per baris"></textarea>` +
-      `<button type="button" class="btn small" data-act="paste-reqs">${T("Add the lines as rows", "Tambahkan baris sebagai persyaratan")}</button></details>` +
-      noteP("Tip: one row per requirement. Mark as Mandatory only what the role really cannot do without.", "Tips: satu baris untuk setiap persyaratan. Tandai Mandatory hanya untuk yang benar-benar wajib bagi role ini.") +
-      noteP("Weight (%) is optional and only for Key accountability rows. Copy the % Bobot from the Job Description; the weights must total 100. The Weighted Gap below then shows, and the gaps are listed with the biggest weight first.", "Bobot (%) bersifat opsional dan hanya untuk baris Key accountability. Salin % Bobot dari Job Description; total bobot harus 100. Gap Berbobot di bawah lalu tampil, dan gap diurutkan dari bobot terbesar.")) +
+    reqBlocks(s.tgt.reqs, {
+      bind: "tgt.reqs", key: "text", who: "tgt", del: "del-req", role: "target", weightNote: weightNote(r),
+      phKa: "e.g. Leads KPI formulation and approval for all Operations units",
+      noteA: ["The results the role is expected to deliver. Weight (%) is optional: copy the % Bobot from the Job Description; the weights must total 100. The Weighted Gap below then shows, and the gaps are listed with the biggest weight first.",
+        "Hasil yang diharapkan dari role ini. Bobot (%) bersifat opsional: salin % Bobot dari Job Description; total bobot harus 100. Gap Berbobot di bawah lalu tampil, dan gap diurutkan dari bobot terbesar."],
+      noteB: ["What the role needs to deliver them: Soft skill or Hard skill, no weight.", "Yang dibutuhkan role untuk mencapainya: Soft skill atau Hard skill, tanpa bobot."],
+    }) +
+    (CTX.ro ? "" : noteP("Tip: one row per requirement. Mark as Mandatory only what the role really cannot do without.", "Tips: satu baris untuk setiap persyaratan. Tandai Mandatory hanya untuk yang benar-benar wajib bagi role ini.")) +
     `</div>`;
 }
 
@@ -1744,6 +1794,14 @@ function renderReport(s) {
 
   /* While the target-role table (6a, part A) is edited, only the part below it is redrawn.
      Focus is in the table at that moment, so nothing the person is typing in is replaced. */
+  /* Row numbers of a requirement table count the filled rows only, as in the other steps; keep them current while typing. */
+  function renumber() {
+    let k = 0;
+    $("step").querySelectorAll(".lrow:not(.lhead)").forEach((row) => {
+      const n = row.querySelector(".n"), f = row.querySelector('[data-bind$=".name"], [data-bind$=".text"]');
+      if (n && f) n.textContent = f.value.trim() ? String(++k) : "";
+    });
+  }
   function renderGapArea() {
     const box = $("gaparea");
     if (current !== "s6a" || !box) return;
@@ -1833,38 +1891,48 @@ function renderReport(s) {
   function lines(text) {
     return String(text || "").split(/\r?\n/).map((l) => l.replace(/^[\s\-•*]+/, "").replace(/^\d+[.)]\s+/, "").trim()).filter(Boolean);
   }
-  function addRowsFromLines(list, make, key, ls) {
+  /* The two requirement lists: the current role (step 1) and the target role (6a). Each has block A (Key accountability) and block B (skills). */
+  const LISTS = {
+    cur: { arr: () => S.cur.skills, make: newSkill, key: "name", bind: "cur.skills" },
+    tgt: { arr: () => S.tgt.reqs, make: newReq, key: "text", bind: "tgt.reqs" },
+  };
+  function addRow(k) {
+    const [who, grp] = String(k).split(":"), L = LISTS[who];
+    if (!L) return;
+    const arr = L.arr(), at = placeIndex(arr, grp);
+    arr.splice(at, 0, L.make(grp === "ka" ? KA : ""));
+    touch(); render();
+    const el = $("step").querySelector('[data-bind="' + L.bind + "." + at + "." + L.key + '"]'); if (el) el.focus();
+  }
+  function pasteRows(k) {
+    const [who, grp] = String(k).split(":"), L = LISTS[who];
+    if (!L) return;
+    const ls = lines($("paste-" + who + "-" + grp).value);
+    if (!ls.length) { toast("Paste at least one line first.", "Tempel minimal satu baris dulu."); return; }
+    const arr = L.arr();
     ls.forEach((t) => {
-      let row = list.find((x) => !String(x[key]).trim());
-      if (!row) { row = make(); list.push(row); }
-      row[key] = t;
+      let row = arr.find((x) => !String(x[L.key]).trim() && isKA(x) === (grp === "ka"));
+      if (!row) { row = L.make(grp === "ka" ? KA : ""); arr.splice(placeIndex(arr, grp), 0, row); }
+      row[L.key] = t;
     });
+    touch(); render();
+    toast(ls.length + " row(s) added. Now set " + (grp === "ka" ? "the level." : "the type (Soft or Hard) and the level."), ls.length + " baris ditambahkan. Sekarang pilih " + (grp === "ka" ? "tingkat kebutuhan." : "jenis (Soft atau Hard) dan tingkat kebutuhan."));
   }
 
   /* ---------- actions ---------- */
   const ACT = {
-    "add-skill"() { S.cur.skills.push(newSkill()); touch(); render(); const el = $("step").querySelectorAll('[data-bind$=".name"]'); if (el.length) el[el.length - 1].focus(); },
+    "add-row"(k) { addRow(k); },
     "del-skill"(i) {
       const x = S.cur.skills[i];
       if (x && (x.name.trim() || x.rating || x.note) && !confirm("Remove this requirement and its rating?\nHapus persyaratan ini beserta penilaiannya?")) return;
       S.cur.skills.splice(i, 1); touch(); render();
     },
-    "add-req"() { S.tgt.reqs.push(newReq()); touch(); render(); const el = $("step").querySelectorAll('[data-bind$=".text"]'); if (el.length) el[el.length - 1].focus(); },
     "del-req"(i) {
       const x = S.tgt.reqs[i];
       if (x && (x.text.trim() || x.gap || x.objective || x.intervention || x.info) && !confirm("Remove this requirement and its assessment?\nHapus persyaratan ini beserta penilaiannya?")) return;
       S.tgt.reqs.splice(i, 1); touch(); render();
     },
-    "paste-skills"() {
-      const ls = lines($("paste-skills").value);
-      if (!ls.length) { toast("Paste at least one line first.", "Tempel minimal satu baris dulu."); return; }
-      addRowsFromLines(S.cur.skills, newSkill, "name", ls); touch(); render(); toast(ls.length + " row(s) added. Now set the area and level.", ls.length + " baris ditambahkan. Sekarang pilih bidang dan tingkat kebutuhan.");
-    },
-    "paste-reqs"() {
-      const ls = lines($("paste-reqs").value);
-      if (!ls.length) { toast("Paste at least one line first.", "Tempel minimal satu baris dulu."); return; }
-      addRowsFromLines(S.tgt.reqs, newReq, "text", ls); touch(); render(); toast(ls.length + " row(s) added. Now set the area and level.", ls.length + " baris ditambahkan. Sekarang pilih bidang dan tingkat kebutuhan.");
-    },
+    "paste-rows"(k) { pasteRows(k); },
     "add-extra"() { S.pdExtra.push(newExtra()); touch(); render(); const el = $("step").querySelectorAll('[data-bind$=".gap"]'); if (el.length) el[el.length - 1].focus(); },
     "del-extra"(i) { S.pdExtra.splice(i, 1); touch(); render(); },
     "fill-keygap"() {
@@ -1880,8 +1948,7 @@ function renderReport(s) {
       S.sp.devAction = t; touch(); render();
     },
     "clear-perf"() { S.ta.perf = ""; touch(); render(); },
-    "fill-levels-skill"() { fillLevels(S.cur.skills, "name"); },
-    "fill-levels-req"() { fillLevels(S.tgt.reqs, "text"); },
+    "fill-levels"(who) { const L = LISTS[who]; if (L) fillLevels(L.arr(), L.key); },
     "save-file"() { saveFile(); },
     "save-draft"() { saveDraft(); },
     "select-cand"(i) { selectCand(Number(i)); },
@@ -2035,6 +2102,7 @@ function renderReport(s) {
     if (!el.dataset || !el.dataset.bind) return;
     pathSet(el.dataset.bind, el.value);
     if (el.tagName === "TEXTAREA") autosize(el);
+    if (/^(cur\.skills|tgt\.reqs)\.\d+\.(name|text)$/.test(el.dataset.bind)) renumber();
     if (/^tgt\.reqs\.\d+\.(text|weight|level)$/.test(el.dataset.bind)) renderGapArea();
     if (autosaveOn() && (el.dataset.bind === "meta.assessor" || el.dataset.bind === "meta.division")) lsSet(el.dataset.bind === "meta.assessor" ? KEY_ASSESSOR : KEY_DIVISION, el.value);
     touch();
