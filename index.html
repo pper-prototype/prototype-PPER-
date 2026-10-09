@@ -432,6 +432,33 @@ select.addtype { width: auto; max-width: 100%; min-height: 34px; padding: 4px 8p
   #toast, .banner { display: none !important; }
 }
 
+/* Candidates: chips above the result strip, the Save draft button, the add dialog */
+.cands { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; margin: 0 0 14px; }
+.cands .lab { font-size: 12px; color: var(--ink2); margin-right: 4px; line-height: 1.25; }
+.cands .lab .id { font-size: 11px; }
+.cand { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 5px 14px; cursor: pointer; font-size: 13px; font-weight: 500; line-height: 1.3; min-height: 36px; max-width: 240px; text-align: left; }
+.cand:hover { border-color: var(--accent); }
+.cand[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.cand.add, .cand.recap { color: var(--accent); }
+.cand.recap[aria-current="true"] { color: var(--accent-ink); }
+.cand.add { border-style: dashed; }
+.cand .id { font-size: 10.5px; font-weight: 400; color: inherit; opacity: .85; }
+.cand[aria-current="true"] .id { opacity: .9; }
+.draftbtn { display: flex; align-items: center; gap: 10px; }
+.draftbtn .ico { width: 18px; height: 18px; flex: none; color: var(--accent); }
+.copybar { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0 0 12px; }
+.tablewrap { max-width: 100%; overflow-x: auto; }
+.out.recap { max-width: 1100px; }
+#adddlg { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 20px 22px; width: min(520px, calc(100vw - 32px)); box-shadow: 0 14px 40px rgba(0,0,0,.3); }
+#adddlg::backdrop { background: rgba(10, 26, 30, .45); }
+#adddlg h2 { font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
+#adddlg h2 .id { font-size: 12.5px; font-weight: 400; }
+#adddlg .dlgbtns { display: grid; gap: 8px; margin: 14px 0; }
+#adddlg .dlgbtns .btn { width: 100%; }
+#adddlg .nm { font-weight: 700; }
+@media screen and (max-width: 900px) { .tools { flex-wrap: wrap; } .draftbtn { flex: 1 1 100%; } .cand { max-width: 100%; } }
+@media print { .cands, .draftbtn { display: none !important; } }
+
 </style>
 </head>
 <body>
@@ -448,6 +475,10 @@ select.addtype { width: auto; max-width: 100%; min-height: 34px; padding: 4px 8p
         <div class="who" id="who"></div>
       </div>
       <div class="tools">
+        <button type="button" class="tool draftbtn" id="draftbtn" data-act="save-draft" title="Saves the draft of all candidates in this browser / Simpan draf semua kandidat di browser ini">
+          <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h9l3 3V16.5H4z M7 3.5v4h5v-4 M7 16.5v-5h6v5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span class="lab"><span class="en">Save draft</span><span class="id">Simpan draf</span></span>
+        </button>
         <div class="menu" id="mainmenu">
           <button type="button" class="tool menubtn" id="menubtn" data-act="menu" aria-haspopup="menu" aria-expanded="false" aria-controls="menupop">
             <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -458,13 +489,14 @@ select.addtype { width: auto; max-width: 100%; min-height: 34px; padding: 4px 8p
           <div class="menu-pop" id="menupop" role="menu" aria-labelledby="menubtn">
             <div class="mh" role="presentation"><span class="en">File</span><span class="id">Berkas</span></div>
             <div class="mnote" id="savetext"></div>
-            <button type="button" role="menuitem" data-act="save-file"><span class="en">Save to file</span><span class="id">Simpan ke file</span></button>
+            <button type="button" role="menuitem" data-act="save-file"><span class="en">Save to file (all candidates)</span><span class="id">Simpan ke file (semua kandidat)</span></button>
             <button type="button" role="menuitem" data-act="open-file"><span class="en">Open file</span><span class="id">Buka file</span></button>
-            <button type="button" role="menuitem" data-act="new"><span class="en">New assessment</span><span class="id">Penilaian baru</span></button>
+            <button type="button" role="menuitem" data-act="remove-cand"><span class="en">Remove this candidate</span><span class="id">Hapus kandidat ini</span></button>
+            <button type="button" role="menuitem" data-act="new"><span class="en">New file (clear all candidates)</span><span class="id">File baru (hapus semua kandidat)</span></button>
             <div class="mh" role="presentation"><span class="en">Export &amp; Print</span><span class="id">Ekspor &amp; Cetak</span></div>
             <button type="button" role="menuitem" data-act="print"><span class="en">Print or save as PDF</span><span class="id">Cetak atau simpan sebagai PDF</span></button>
-            <button type="button" role="menuitem" data-act="csv-summary"><span class="en">Summary (CSV)</span><span class="id">Ringkasan (CSV)</span></button>
-            <button type="button" role="menuitem" data-act="csv-gaps"><span class="en">Gap table (CSV)</span><span class="id">Tabel gap (CSV)</span></button>
+            <button type="button" role="menuitem" data-act="csv-summary"><span class="en">Summary, all candidates (CSV)</span><span class="id">Ringkasan, semua kandidat (CSV)</span></button>
+            <button type="button" role="menuitem" data-act="csv-gaps"><span class="en">Gap table, all candidates (CSV)</span><span class="id">Tabel gap, semua kandidat (CSV)</span></button>
             <div class="mh" role="presentation"><span class="en">Settings</span><span class="id">Pengaturan</span></div>
             <button type="button" role="menuitemcheckbox" aria-checked="true" id="idbtn" data-act="toggle-id"><span class="lab"><span class="en">Indonesian text</span><span class="id">Teks Indonesia</span></span><span class="sw" aria-hidden="true"></span></button>
             <button type="button" role="menuitemcheckbox" aria-checked="true" id="autosavebtn" data-act="toggle-autosave"><span class="lab"><span class="en">Autosave in this browser</span><span class="id">Simpan otomatis di browser ini</span></span><span class="sw" aria-hidden="true"></span></button>
@@ -473,10 +505,21 @@ select.addtype { width: auto; max-width: 100%; min-height: 34px; padding: 4px 8p
       </div>
     </div>
     <div id="banner"></div>
+    <div class="cands" id="cands" role="navigation" aria-label="Candidates / Kandidat"></div>
     <div class="strip" id="strip" aria-live="polite" aria-label="Results so far / Hasil sementara"></div>
     <div id="step" tabindex="-1"></div>
   </main>
 </div>
+<dialog id="adddlg" aria-labelledby="adddlg-t">
+  <h2 id="adddlg-t"><span class="en">Add a candidate</span><span class="id">Tambah kandidat</span></h2>
+  <p class="note"><span class="en">Is the new candidate in the same current role as the candidate on screen?</span><span class="id">Apakah kandidat baru berada di role saat ini yang sama dengan kandidat di layar?</span></p>
+  <div class="dlgbtns">
+    <button type="button" class="btn primary" id="addcopy" data-act="add-copy"><span class="en">Same role: copy the Role Standard from <b class="nm"></b></span><span class="id">Role sama: salin Standar Role dari kandidat ini</span></button>
+    <button type="button" class="btn" data-act="add-blank"><span class="en">Different role: start blank</span><span class="id">Role berbeda: mulai kosong</span></button>
+    <button type="button" class="btn quiet" data-act="add-cancel"><span class="en">Cancel</span><span class="id">Batal</span></button>
+  </div>
+  <p class="note"><span class="en">Only the list of requirements is copied. Ratings, notes and development items are not.</span><span class="id">Yang disalin hanya daftar persyaratan. Penilaian, catatan, dan item pengembangan tidak ikut.</span></p>
+</dialog>
 <div id="report" aria-hidden="true"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="file" accept=".json,application/json" hidden>
@@ -641,7 +684,7 @@ C.howto = [
 ];
 C.flow = [
   { no: "1", en: "Role Standard", id: "Standar Role", d: { en: "List what the CURRENT role requires, from the Job Description or role mapping.", id: "Daftar apa yang dibutuhkan role SAAT INI, dari Job Description atau mapping role." }, key: "s1" },
-  { no: "2", en: "People Assessment", id: "Penilaian Karyawan", d: { en: "Rate the candidate against the CURRENT role. The result is pooled into Performance (step 4) and shown again in 6a.", id: "Nilai kandidat terhadap role SAAT INI. Hasilnya dikumpulkan menjadi Kinerja (step 4) dan muncul lagi di 6a." }, key: "s2" },
+  { no: "2", en: "People Assessment", id: "Penilaian Karyawan", d: { en: "Rate the candidate against the CURRENT role. The Key accountability ratings are pooled into Performance (step 4); a Below Soft or Hard skill holds it at Meets. Every Below rating goes into the PDP (step 3). The result is shown again in 6a.", id: "Nilai kandidat terhadap role SAAT INI. Rating Key accountability dikumpulkan menjadi Kinerja (step 4); Soft atau Hard skill yang Di bawah menahannya di Meets. Setiap rating Di bawah masuk PDP (step 3). Hasilnya muncul lagi di 6a." }, key: "s2" },
   { no: "3", en: "People Development (PDP)", id: "Pengembangan Karyawan (PDP)", d: { en: "For every gap in the current role, set an objective and an intervention. These flow into the Development Action in 6b.", id: "Untuk setiap gap di role saat ini, tetapkan tujuan dan intervensi. Ini masuk ke Aksi pengembangan di 6b." }, key: "s3" },
   { no: "4", en: "Talent Assessment", id: "Penilaian Talenta", d: { en: "Performance comes from step 2; you add the Potential. If the candidate is eligible, name the target role and judge whether it is critical.", id: "Kinerja berasal dari step 2; Anda menambahkan Potensi. Jika kandidat layak, tulis role tujuan dan nilai apakah kritikal." }, key: "s4" },
   { no: "5", en: "Talent Pipeline", id: "Jalur Talenta", d: { en: "If the candidate is eligible for the Talent Pool, choose a development pathway.", id: "Jika kandidat layak masuk Talent Pool, pilih jalur pengembangan." }, key: "s5" },
@@ -663,15 +706,15 @@ C.readyNote = {
   id: "Label tahun adalah perkiraan rentang, bukan tenggat. Nilai ulang setiap siklus tahunan, berdasarkan bukti.",
 };
 C.weightNote = {
-  en: "Optional: if the Job Description gives a weight (%) to each Key accountability, enter it: in step 1 for the current role, in step 6a for the target role. The weights of the target role give the Weighted Gap in step 6a: the share of that weight not yet covered. It is information only and never changes the readiness result. The weights of the current role are used to pool the Performance in step 4.",
-  id: "Opsional: jika Job Description memberi bobot (%) pada setiap Key accountability, isi: di step 1 untuk role saat ini, di step 6a untuk role tujuan. Bobot role tujuan menghasilkan Gap Berbobot di step 6a: porsi bobot yang belum tertutup. Ini hanya informasi dan tidak pernah mengubah hasil kesiapan. Bobot role saat ini dipakai untuk mengumpulkan Kinerja di step 4.",
+  en: "Optional: if the Job Description gives a weight (%) to each Key accountability, enter it: in step 1 for the current role, in step 6a for the target role. The weights of the target role give the Weighted Gap in step 6a: the share of that weight not yet covered. It is information only and never changes the readiness result. The weights of the current role are used to pool the Performance in step 4, from the Key accountability rows only (a Below Soft or Hard skill holds it at Meets).",
+  id: "Opsional: jika Job Description memberi bobot (%) pada setiap Key accountability, isi: di step 1 untuk role saat ini, di step 6a untuk role tujuan. Bobot role tujuan menghasilkan Gap Berbobot di step 6a: porsi bobot yang belum tertutup. Ini hanya informasi dan tidak pernah mengubah hasil kesiapan. Bobot role saat ini dipakai untuk mengumpulkan Kinerja di step 4, hanya dari baris Key accountability (Soft atau Hard skill yang Di bawah menahannya di Meets).",
 };
 C.words = [
   ["Mandatory", "Must have for the role.", "Wajib dimiliki untuk role ini."],
   ["Recommended", "Strongly preferred, but the role can be done without it.", "Sangat diutamakan, tetapi role tetap bisa dijalankan tanpanya."],
   ["Nice to Have", "A plus, not required.", "Nilai tambah, tidak wajib."],
   ["Below / Meets / Exceeds expectation", "Below, at, or above what the role requires for this requirement.", "Di bawah, sesuai, atau di atas yang dituntut role untuk persyaratan ini."],
-  ["Performance: Low / Meets / Exceeds", "Pooled from the ratings in step 2. You can change it by hand.", "Dikumpulkan dari rating di step 2. Boleh diubah manual."],
+  ["Performance: Low / Meets / Exceeds", "Pooled from the Key accountability ratings in step 2; a Below Soft or Hard skill holds it at Meets. You can change it by hand.", "Dikumpulkan dari rating Key accountability di step 2; Soft atau Hard skill yang Di bawah menahannya di Meets. Boleh diubah manual."],
   ["Potential", "How far the person could grow. Four indicators scored 1–3 (total 4–12): 4–6 Low, 7–9 Medium, 10–12 High.", "Seberapa jauh orang itu bisa berkembang. Empat indikator diskor 1–3 (total 4–12): 4–6 Low, 7–9 Medium, 10–12 High."],
   ["Vacancy Risk", "How likely the role is to become vacant soon.", "Seberapa besar kemungkinan role segera kosong."],
   ["Succession Priority", "Immediate = build a successor now. Planned Coverage = prepare a pipeline, not urgent. Replacement Planning = normal recruitment, outside succession.", "Immediate = siapkan penerus sekarang. Planned Coverage = siapkan jalur penerus, tidak mendesak. Replacement Planning = rekrutmen biasa, di luar suksesi."],
@@ -703,7 +746,8 @@ C.example = [
 
 /* State, rules and exports. No DOM in this file. */
 const APP_ID = "PPER-Succession-Assessment";
-const APP_VERSION = "v8";
+const APP_VERSION = "v9";
+const MAX_CANDS = 30;
 
 function uid() { return Math.random().toString(36).slice(2, 9); }
 function todayISO() {
@@ -800,6 +844,33 @@ function normalize(raw) {
   return d;
 }
 
+/* A saved file or draft holds a list of candidates. Files from v8 and older hold one candidate, under "state". */
+function normalizeFile(raw) {
+  const o = raw && typeof raw === "object" ? raw : {};
+  const cands = Array.isArray(o.cands) && o.cands.length ? o.cands.slice(0, MAX_CANDS).map(normalize) : [normalize(o.state)];
+  const a = isNum(o.active) ? Math.max(0, Math.min(cands.length - 1, Math.floor(o.active))) : 0;
+  return { cands, active: a };
+}
+const candName = (s, i) => s.meta.employee.trim() || "Candidate " + (i + 1);
+function hasWorkIn(s) {
+  return !!(s.meta.employee.trim() || s.cur.role.trim() || s.tgt.role.trim() || s.cur.skills.some((x) => x.name.trim()) || s.tgt.reqs.some((x) => x.text.trim()));
+}
+/* A new candidate of the same Head: same assessor and division, nothing else. */
+function newCandidateAfter(src) {
+  const d = defaultState();
+  if (src) { d.meta.assessor = src.meta.assessor; d.meta.division = src.meta.division; }
+  return d;
+}
+/* Copy only the requirement list of the current role (area, text, weight, level), never ratings, notes or development items. */
+function copyRoleStandard(from, to) {
+  to.cur.role = from.cur.role;
+  const rows = from.cur.skills.filter((x) => x.name.trim()).map((x) => { const b = newSkill(); b.area = x.area; b.name = x.name; b.weight = x.weight; b.level = x.level; return b; });
+  if (rows.length) to.cur.skills = rows;
+}
+function copyTargetReqs(from, to) {
+  to.tgt.reqs = from.tgt.reqs.filter((x) => x.text.trim()).map((x) => { const b = newReq(); b.area = x.area; b.text = x.text; b.weight = x.weight; b.level = x.level; return b; });
+}
+
 /* ---------- Rules: identical to the Excel template (with the corrected 9-box) ---------- */
 function shortText(t, n) {
   t = String(t || "").replace(/\s+/g, " ").trim();
@@ -827,18 +898,25 @@ function wInfo(list) {
 }
 
 /* Performance pooled from the People Assessment (step 2): Exceeds 3, Meets 2, Below 1; average >= 2.5 Exceeds, >= 1.5 Meets, else Low.
-   Weighted by the step 1A Key accountability weights when they are complete (total 100); otherwise every rated requirement counts equally. */
+   Only the Key accountability rows are averaged (the results of the role), weighted by the step 1 weights when they are complete (total 100), otherwise each counts equally.
+   Soft and Hard skill ratings are not averaged in, but they support the accountabilities: if any of them is rated Below, an Exceeds result is held at Meets.
+   Every Below rating also goes into the PDP (step 3).
+   Fallback: a role with no Key accountability rows is pooled from all its requirements, each counted equally (the same hold applies). */
 const PERF_PTS = { "Exceeds expectation": 3, "Meets expectation": 2, "Below expectation": 1 };
 function poolPerformance(r) {
-  const out = { auto: "", avg: null, n: 0, basis: "" };
-  if (!r.skills.length || r.rate.none) return out;
+  const out = { auto: "", avg: null, n: 0, basis: "", capped: false, held: [] };
   const cw = r.cw;
-  const useW = cw.wOn && cw.wMissing === 0 && Math.abs(cw.wTotal - 100) <= 0.01;
+  const base = cw.acc.length ? cw.acc : r.skills;
+  if (!base.length || base.some((q) => !PERF_PTS[q.rating])) return out;
+  const useW = cw.acc.length > 0 && cw.wOn && cw.wMissing === 0 && Math.abs(cw.wTotal - 100) <= 0.01;
   let sum = 0, den = 0;
-  if (useW) { cw.acc.forEach((q) => { sum += wOf(q) * PERF_PTS[q.rating]; den += wOf(q); }); out.basis = "weighted"; out.n = cw.acc.length; }
-  else { r.skills.forEach((q) => { sum += PERF_PTS[q.rating]; den += 1; }); out.basis = "simple"; out.n = r.skills.length; }
+  if (useW) { base.forEach((q) => { sum += wOf(q) * PERF_PTS[q.rating]; den += wOf(q); }); out.basis = "weighted"; }
+  else { base.forEach((q) => { sum += PERF_PTS[q.rating]; den += 1; }); out.basis = cw.acc.length ? "simple" : "all"; }
+  out.n = base.length;
   out.avg = Math.round((sum / den) * 100) / 100;
   out.auto = out.avg >= 2.5 ? "Exceeds" : out.avg >= 1.5 ? "Meets" : "Low";
+  out.held = r.skills.filter((q) => q.area !== "Key accountability" && q.rating === "Below expectation");
+  if (out.auto === "Exceeds" && out.held.length) { out.auto = "Meets"; out.capped = true; }
   return out;
 }
 
@@ -1039,20 +1117,26 @@ function csvEscape(v) {
   return /[",\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
 }
 function toCSV(rows) { return "﻿" + rows.map((row) => row.map(csvEscape).join(",")).join("\r\n"); }
-function summaryCSV(s, r) {
-  return toCSV([
-    ["Division", "Candidate", "Assessed by", "Assessment date", "Current role", "Target role", "Role criticality", "Criticality score (of 9)", "Vacancy risk",
-      "Succession priority", "Performance", "Performance source", "Step 2 average (of 3)", "Potential total (of 12)", "Potential level", "Talent segment", "Pathway", "Readiness",
-      "Mandatory gaps: Significant", "Mandatory gaps: Moderate", "Weighted gap % (info only)", "Key gap", "Development action", "Next annual review"],
-    [s.meta.division, s.meta.employee, s.meta.assessor, s.meta.date, s.cur.role, s.tgt.role, r.crit, r.critTotal == null ? "" : r.critTotal, s.ta.vacancy,
-      r.priority, r.perf, r.perfSrc === "manual" ? "Chosen by hand" : r.perfSrc === "step2" ? "Pooled from step 2" : "", r.pool.avg == null ? "" : r.pool.avg, r.potTotal == null ? "" : r.potTotal, r.potLevel, r.segment, r.pathway, r.readiness,
-      r.sig, r.mod, r.wgap == null ? "" : r.wgap, s.sp.keyGap, s.sp.devAction, s.sp.review],
-  ]);
+const SUMMARY_HEAD = ["Division", "Candidate", "Assessed by", "Assessment date", "Current role", "Target role", "Role criticality", "Criticality score (of 9)", "Vacancy risk",
+  "Succession priority", "Performance", "Performance source", "Step 2 average (of 3)", "Potential total (of 12)", "Potential level", "Talent segment", "Pathway", "Readiness",
+  "Mandatory gaps: Significant", "Mandatory gaps: Moderate", "Weighted gap % (info only)", "Key gap", "Development action", "Next annual review"];
+function summaryRow(s, r) {
+  return [s.meta.division, s.meta.employee, s.meta.assessor, s.meta.date, s.cur.role, s.tgt.role, r.crit, r.critTotal == null ? "" : r.critTotal, s.ta.vacancy,
+    r.priority, r.perf, r.perfSrc === "manual" ? "Chosen by hand" : r.perfSrc === "step2" ? (r.pool.capped ? "Pooled from step 2, held at Meets by a Below skill" : "Pooled from step 2") : "", r.pool.avg == null ? "" : r.pool.avg, r.potTotal == null ? "" : r.potTotal, r.potLevel, r.segment, r.pathway, r.readiness,
+    r.sig, r.mod, r.wgap == null ? "" : r.wgap, s.sp.keyGap, s.sp.devAction, s.sp.review];
 }
-function gapsCSV(s, r) {
-  const rows = [["Candidate", "Target role", "#", "Area", "Requirement", "Weight (%)", "Requirement level", "Candidate today", "Gap", "Development objective", "Recommended intervention", "Additional information"]];
-  r.reqs.forEach((q, i) => rows.push([s.meta.employee, s.tgt.role, i + 1, q.area, q.text, wOf(q) == null ? "" : wOf(q), q.level, q.today, q.gap, q.objective, q.intervention, q.info]));
-  return toCSV(rows);
+function summaryCSV(s, r) { return toCSV([SUMMARY_HEAD, summaryRow(s, r)]); }
+function summaryCSVAll(list) { return toCSV([SUMMARY_HEAD].concat((list.length > 1 ? list.filter(hasWorkIn) : list).map((s) => summaryRow(s, calc(s))))); }
+const GAPS_HEAD = ["Candidate", "Target role", "#", "Area", "Requirement", "Weight (%)", "Requirement level", "Candidate today", "Gap", "Development objective", "Recommended intervention", "Additional information"];
+function gapsRows(s, r) {
+  return r.reqs.map((q, i) => [s.meta.employee, s.tgt.role, i + 1, q.area, q.text, wOf(q) == null ? "" : wOf(q), q.level, q.today, q.gap, q.objective, q.intervention, q.info]);
+}
+function gapsCSV(s, r) { return toCSV([GAPS_HEAD].concat(gapsRows(s, r))); }
+function gapsCSVAll(list) { return toCSV([GAPS_HEAD].concat(...list.map((s) => gapsRows(s, calc(s))))); }
+function fileStemAll(list) {
+  if (list.length === 1) return fileStem(list[0]);
+  const clean = (v) => String(v || "").trim().replace(/[^\w\-]+/g, "_").replace(/^_+|_+$/g, "");
+  return ["PPER_Succession", clean(list[0].meta.division) || "division", list.length + "_candidates", list[0].meta.date || todayISO()].join("_");
 }
 function fileStem(s) {
   const clean = (v) => String(v || "").trim().replace(/[^\w\-]+/g, "_").replace(/^_+|_+$/g, "");
@@ -1060,7 +1144,8 @@ function fileStem(s) {
 }
 
 /* Screens. Each view returns an HTML string. CTX.ro = true renders the read-only print version. */
-const CTX = { ro: false };
+/* cands: every candidate of the file (set by the app before each draw); n: how many */
+const CTX = { ro: false, cands: [], n: 1 };
 
 /* ---------- small builders ---------- */
 const T = (en, id) => `<span class="en">${esc(en)}</span>${id ? `<span class="id">${esc(id)}</span>` : ""}`;
@@ -1256,7 +1341,7 @@ function viewS1(s, r) {
     (CTX.ro ? "" : `<div class="lfoot">${addBtn("add-skill", "Add a requirement", "Tambah persyaratan")}${addBtn("fill-levels-skill", "Set empty levels to Mandatory", "Isi tingkat yang kosong dengan Mandatory")}</div>` +
       `<details class="paste"><summary>${T("Paste a list instead", "Atau tempel sebuah daftar")}</summary><textarea id="paste-skills" rows="5" placeholder="One requirement per line / Satu persyaratan per baris"></textarea>` +
       `<button type="button" class="btn small" data-act="paste-skills">${T("Add the lines as rows", "Tambahkan baris sebagai persyaratan")}</button></details>` +
-      noteP("Weight (%) is optional and only for Key accountability rows. Copy the % Bobot from the Job Description of the current role; the weights should total 100.", "Bobot (%) bersifat opsional dan hanya untuk baris Key accountability. Salin % Bobot dari Job Description role saat ini; total bobot sebaiknya 100.")) +
+      noteP("Weight (%) is optional and only for Key accountability rows. Copy the % Bobot from the Job Description of the current role; the weights should total 100. The Performance in step 4 is averaged from the Key accountability rows only; the weights make the bigger ones count more. Soft skill and Hard skill ratings are not averaged in, but one rated Below holds the Performance at Meets (it cannot be Exceeds).", "Bobot (%) bersifat opsional dan hanya untuk baris Key accountability. Salin % Bobot dari Job Description role saat ini; total bobot sebaiknya 100. Kinerja di step 4 dirata-rata hanya dari baris Key accountability; bobot membuat yang lebih besar dihitung lebih berat. Rating Soft skill dan Hard skill tidak ikut dirata-rata, tetapi satu yang dinilai Di bawah menahan Kinerja di Meets (tidak bisa Exceeds).")) +
     `</div>`;
 
   return head("1", "Role Standard: what the CURRENT role requires", "Standar Role: apa yang dibutuhkan role SAAT INI",
@@ -1338,20 +1423,25 @@ function viewS4(s, r) {
   const pl = r.pool, manual = !!t.perf;
   const perfPick = choiceCards("ta.perf", t.perf, C.performance.opts.map((o) => ({ val: o.v, sc: o.v, id: o.id })), { cls: "compact", label: "Performance" });
   let perfBody;
-  if (CTX.ro) perfBody = `<div class="rv">${esc(r.perf) || "—"}${manual ? " (chosen by hand)" : r.perf ? " (pooled from step 2, average " + esc(pl.avg) + " of 3)" : ""}</div>`;
+  if (CTX.ro) perfBody = `<div class="rv">${esc(r.perf) || "—"}${manual ? " (chosen by hand)" : r.perf ? " (pooled from step 2, average " + esc(pl.avg) + " of 3" + (pl.capped ? ", held at Meets by a Below skill" : "") + ")" : ""}</div>`;
   else {
+    const skillNote = [" Soft skill and Hard skill ratings are not averaged in, but one rated Below holds the Performance at Meets (it cannot be Exceeds). Every Below rating also goes into the PDP in step 3.", " Rating Soft skill dan Hard skill tidak ikut dirata-rata, tetapi satu yang dinilai Di bawah menahan Kinerja di Meets (tidak bisa Exceeds). Setiap rating Di bawah juga masuk PDP di step 3."];
+    const heldNames = pl.held.map((q) => q.name).join(", ");
+    const capNote = pl.capped ? `<div class="wnote warn" role="status">${T((pl.basis === "all" ? "The average alone gives Exceeds" : "The Key accountabilities alone give Exceeds") + ", but " + pl.held.length + " Soft or Hard skill rated Below (" + heldNames + "), so the Performance is held at Meets.", (pl.basis === "all" ? "Rata-rata saja menghasilkan Exceeds" : "Key accountability saja menghasilkan Exceeds") + ", tetapi " + pl.held.length + " Soft atau Hard skill dinilai Di bawah (" + heldNames + "), jadi Kinerja ditahan di Meets.")}</div>` : "";
     const basis = pl.basis === "weighted"
-      ? ["Pooled from the " + pl.n + " Key accountabilities of the current role, counted by the weights in step 1.", "Dikumpulkan dari " + pl.n + " Key accountability role saat ini, dihitung menurut bobot di step 1."]
-      : ["Pooled from all " + pl.n + " requirements of the current role, each counted equally. Add weights to the Key accountabilities in step 1 to count them by weight.", "Dikumpulkan dari seluruh " + pl.n + " persyaratan role saat ini, masing-masing sama bobotnya. Isi bobot Key accountability di step 1 agar dihitung menurut bobot."];
+      ? ["Pooled from the " + pl.n + " Key accountabilities of the current role, counted by the weights in step 1." + skillNote[0], "Dikumpulkan dari " + pl.n + " Key accountability role saat ini, dihitung menurut bobot di step 1." + skillNote[1]]
+      : pl.basis === "simple"
+        ? ["Pooled from the " + pl.n + " Key accountabilities of the current role, each counted equally. Add weights in step 1 to count the bigger ones more." + skillNote[0], "Dikumpulkan dari " + pl.n + " Key accountability role saat ini, masing-masing sama bobotnya. Isi bobot di step 1 agar yang lebih besar dihitung lebih berat." + skillNote[1]]
+        : ["The current role has no Key accountability rows, so all " + pl.n + " requirements are pooled, each counted equally.", "Role saat ini tidak punya baris Key accountability, jadi seluruh " + pl.n + " persyaratan dikumpulkan, masing-masing sama bobotnya."];
     const scale = [" Exceeds = 3, Meets = 2, Below = 1. Average 2.5 or more = Exceeds, 1.5 or more = Meets, lower = Low.", " Exceeds = 3, Meets = 2, Below = 1. Rata-rata 2,5 ke atas = Exceeds, 1,5 ke atas = Meets, di bawahnya = Low."];
     if (pl.auto) {
       perfBody = `<div class="counts"><div class="pill"><b style="font-size:15px">${chip(pl.auto)}</b>${T("Pooled from step 2", "Dikumpulkan dari step 2")}</div><div class="pill"><b>${esc(pl.avg)}</b>${T("Average (of 3)", "Rata-rata (dari 3)")}</div></div>` +
-        noteP(basis[0] + scale[0], basis[1] + scale[1]) +
+        noteP(basis[0] + scale[0], basis[1] + scale[1]) + capNote +
         (manual ? `<div class="wnote warn" role="status">${T("You chose " + t.perf + " by hand, so that is used instead of the pooled result.", "Anda memilih " + t.perf + " secara manual, jadi itu yang dipakai, bukan hasil dari step 2.")}</div>` + perfPick +
           `<div class="lfoot"><button type="button" class="btn small" data-act="clear-perf">${T("Back to the step 2 result", "Kembali ke hasil step 2")}</button></div>`
           : `<details class="opt"><summary>${T("Change it by hand (optional)", "Ubah manual (opsional)")}</summary>${perfPick}</details>`);
     } else {
-      perfBody = hint("Rate every requirement in step 2 and the Performance fills itself from those ratings. You can also choose it by hand here.", "Nilai semua persyaratan di step 2 dan Kinerja terisi sendiri dari rating itu. Anda juga bisa memilihnya manual di sini.") + perfPick;
+      perfBody = (r.cw.acc.length ? hint("Rate every Key accountability in step 2 and the Performance fills itself from those ratings. You can also choose it by hand here.", "Nilai setiap Key accountability di step 2 dan Kinerja terisi sendiri dari rating itu. Anda juga bisa memilihnya manual di sini.") : hint("Rate every requirement in step 2 and the Performance fills itself from those ratings. You can also choose it by hand here.", "Nilai semua persyaratan di step 2 dan Kinerja terisi sendiri dari rating itu. Anda juga bisa memilihnya manual di sini.")) + perfPick;
     }
     perfBody += hint(C.performance.help.en, C.performance.help.id);
   }
@@ -1416,7 +1506,9 @@ function fromStep2(s, r) {
 /* The target-role requirements (the table that used to sit in step 1). Only an eligible candidate reaches it. */
 function reqTable(s, r) {
   const reqs = CTX.ro ? s.tgt.reqs.map((x, i) => [x, i]).filter(([x]) => x.text.trim()) : s.tgt.reqs.map((x, i) => [x, i]);
-  return `<div class="list">` +
+  const donors = CTX.ro || s.tgt.reqs.some((x) => x.text.trim()) ? [] : CTX.cands.map((c, i) => [c, i]).filter(([c]) => c !== s && c.tgt.reqs.some((x) => x.text.trim()));
+  const copy = donors.length ? `<div class="copybar">${donors.map(([c, i]) => `<button type="button" class="btn small" data-act="copy-reqs" data-i="${i}">${T("Copy the requirements from " + candName(c, i), "Salin persyaratan dari " + candName(c, i))}</button>`).join("")}</div>` : "";
+  return copy + `<div class="list">` +
     `<div class="lhead lrow cols-req" style="border:0"><span></span><span>${T("Area", "Bidang")}</span><span>${T("Requirement (from the target role's Job Description)", "Persyaratan (dari Job Description role tujuan)")}</span><span>${T("Weight (%)", "Bobot (%)")}</span><span>${T("Requirement level", "Tingkat kebutuhan")}</span><span></span></div>` +
     reqs.map(([x, i], n) => `<div class="lrow cols-req"><span class="n">${n + 1}</span>` +
       ctlSelect(`tgt.reqs.${i}.area`, x.area, C.areas, { aria: "Area" }) +
@@ -1511,9 +1603,9 @@ function viewS6b(s, r) {
     real.concat(warns).map((x) => `<li>${CTX.ro ? "" : `<a data-go="${x.k}" role="link" tabindex="0">${esc(stepName(x.k))}</a>: `}${T(x.en, x.id)}</li>`).join("") + `</ul>`;
 
   const actions = CTX.ro ? "" : `<div class="lfoot" style="margin-top:16px"><button type="button" class="btn primary" data-act="print">${T("Print or save as PDF", "Cetak atau simpan sebagai PDF")}</button>` +
-    `<button type="button" class="btn" data-act="save-file">${T("Save to file", "Simpan ke file")}</button>` +
-    `<button type="button" class="btn" data-act="csv-summary">${T("Export summary (CSV)", "Ekspor ringkasan (CSV)")}</button>` +
-    `<button type="button" class="btn" data-act="csv-gaps">${T("Export gap table (CSV)", "Ekspor tabel gap (CSV)")}</button></div>`;
+    `<button type="button" class="btn" data-act="save-file">${CTX.n > 1 ? T("Save to file (all candidates)", "Simpan ke file (semua kandidat)") : T("Save to file", "Simpan ke file")}</button>` +
+    `<button type="button" class="btn" data-act="csv-summary">${CTX.n > 1 ? T("Export summary, all candidates (CSV)", "Ekspor ringkasan, semua kandidat (CSV)") : T("Export summary (CSV)", "Ekspor ringkasan (CSV)")}</button>` +
+    `<button type="button" class="btn" data-act="csv-gaps">${CTX.n > 1 ? T("Export gap table, all candidates (CSV)", "Ekspor tabel gap, semua kandidat (CSV)") : T("Export gap table (CSV)", "Ekspor tabel gap (CSV)")}</button></div>`;
 
   return hd +
     sect("A. Succession Plan output", "A. Hasil Rencana Suksesi", out) +
@@ -1523,7 +1615,40 @@ function viewS6b(s, r) {
 }
 
 
-const VIEWS = { start: viewStart, s1: viewS1, s2: viewS2, s3: viewS3, s4: viewS4, s5: viewS5, s6a: viewS6a, s6b: viewS6b };
+/* ---------- Recap: every candidate of the file, side by side ---------- */
+function recapTable() {
+  const list = CTX.cands;
+  const total = C.steps.length - 1;
+  const mute = (t) => `<span class="auto empty" style="border:0;background:none;padding:0">${esc(t)}</span>`;
+  const rows = list.map((s, i) => {
+    const r = calc(s), st = stepStatus(s, r, issues(s, r));
+    const done = C.steps.filter((x) => x.key !== "start" && st[x.key] === "done").length;
+    const ready = r.eligible === "Not eligible now" ? mute("Not eligible") : /^Incomplete/.test(r.readiness) ? mute("Incomplete") : chip(r.readiness);
+    const open = CTX.ro ? "" : `<button type="button" class="btn small" data-act="select-cand" data-i="${i}">${T("Open", "Buka")}</button>`;
+    return `<tr><th scope="row">${esc(candName(s, i))}</th><td>${esc(s.cur.role) || "—"}</td><td>${r.open && s.tgt.role.trim() ? esc(s.tgt.role) : "—"}</td>` +
+      `<td>${chip(r.segment)}</td><td>${r.pathway ? esc(r.pathway) : "—"}</td><td>${ready}</td><td>${done} / ${total}</td>${CTX.ro ? "" : `<td>${open}</td>`}</tr>`;
+  }).join("");
+  return `<div class="tablewrap"><table class="out recap"><thead><tr><th>${TT("Candidate", "Kandidat")}</th><th>${TT("Current role", "Role saat ini")}</th><th>${TT("Target role", "Role tujuan")}</th>` +
+    `<th>${TT("Talent segment", "Segmen talenta")}</th><th>${TT("Pathway", "Jalur")}</th><th>${TT("Readiness", "Kesiapan")}</th><th>${TT("Steps done", "Langkah selesai")}</th>${CTX.ro ? "" : "<th></th>"}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function viewRecap(s, r) {
+  const acts = CTX.ro ? "" : `<div class="lfoot" style="margin-bottom:16px"><button type="button" class="btn" data-act="add-cand">${T("Add a candidate", "Tambah kandidat")}</button>` +
+    `<button type="button" class="btn" data-act="csv-summary">${T("Export summary, all candidates (CSV)", "Ekspor ringkasan, semua kandidat (CSV)")}</button>` +
+    `<button type="button" class="btn" data-act="csv-gaps">${T("Export gap table, all candidates (CSV)", "Ekspor tabel gap, semua kandidat (CSV)")}</button>` +
+    `<button type="button" class="btn" data-act="print">${T("Print or save as PDF", "Cetak atau simpan sebagai PDF")}</button></div>`;
+  return head("", "Recap of Candidates", "Rekap Kandidat",
+    CTX.ro ? "All candidates in this file, side by side." : "All candidates in this file, side by side. Press Open to work on one of them.",
+    CTX.ro ? "Semua kandidat di file ini, berdampingan." : "Semua kandidat di file ini, berdampingan. Tekan Buka untuk mengerjakan salah satunya.") +
+    acts + recapTable() +
+    noteP("Readiness and target role appear only for a candidate who is eligible (High Performer or Emerging Talent). Steps done counts steps 1 to 6b.", "Kesiapan dan role tujuan hanya muncul untuk kandidat yang layak (High Performer atau Emerging Talent). Langkah selesai menghitung step 1 sampai 6b.");
+}
+function renderRecapReport() {
+  CTX.ro = true;
+  try { return `<div class="ro"><section class="rstep"><h1>Succession Assessment</h1>${viewRecap(null, null)}</section></div>`; }
+  finally { CTX.ro = false; }
+}
+
+const VIEWS = { recap: viewRecap, start: viewStart, s1: viewS1, s2: viewS2, s3: viewS3, s4: viewS4, s5: viewS5, s6a: viewS6a, s6b: viewS6b };
 
 /* The printable record: every step, read-only */
 function renderReport(s) {
@@ -1539,14 +1664,18 @@ function renderReport(s) {
 
 /* App shell: navigation, events, saving, exporting, printing. */
 (function () {
-  const KEY = "pper_succession_draft_v1";
+  const KEY = "pper_succession_draft_v2";
+  const KEY_V1 = "pper_succession_draft_v1";   /* drafts of v8 and older: one candidate, read once and then left alone */
   const KEY_AUTO_OFF = "pper_succession_autosave_off";
   const KEY_ID_OFF = "pper_succession_id_off";
   const KEY_ASSESSOR = "pper_succession_assessor";
   const KEY_DIVISION = "pper_succession_division";
   const $ = (id) => document.getElementById(id);
 
+  /* The file holds a list of candidates. S is always the one on screen: cands[active]. */
   let S = defaultState();
+  let cands = [S];
+  let active = 0;
   let current = "start";
   let dirty = false;
   let draftPending = false;
@@ -1606,6 +1735,7 @@ function renderReport(s) {
   function render(keepFocus) {
     const sig = keepFocus ? focusSig(document.activeElement) : null;
     const r = calc(S);
+    CTX.cands = cands; CTX.n = cands.length;
     $("step").innerHTML = VIEWS[current](S, r);
     $("step").querySelectorAll("textarea[data-bind]").forEach(autosize);
     if (sig) { const el = $("step").querySelector(sig); if (el) el.focus({ preventScroll: true }); }
@@ -1630,11 +1760,20 @@ function renderReport(s) {
       cell("Pathway", "Jalur", r.pathway, r.eligible === "Not eligible now" ? "Locked: not in Talent Pool" : "", "mute") +
       cell("Readiness", "Kesiapan", r.readiness, r.reqs.length ? r.sig + " Significant, " + r.mod + " Moderate (Mandatory)" : "", r.readiness.indexOf("Incomplete") === 0 ? "mute" : toneOf(r.readiness), true);
   }
+  /* The candidate bar: one chip per candidate, then Add, then Recap (from two candidates on) */
+  function renderCands() {
+    const chips = cands.map((c, i) => `<button type="button" class="cand" data-act="select-cand" data-i="${i}"${i === active && current !== "recap" ? ' aria-current="true"' : ""}>${esc(candName(c, i))}</button>`).join("");
+    $("cands").innerHTML = `<span class="lab"><span class="en">Candidates</span><span class="id">Kandidat</span></span>` + chips +
+      `<button type="button" class="cand add" data-act="add-cand"><span class="en">+ Add candidate</span><span class="id">+ Tambah kandidat</span></button>` +
+      (cands.length > 1 ? `<button type="button" class="cand recap" data-act="go-recap"${current === "recap" ? ' aria-current="true"' : ""}><span class="en">Recap</span><span class="id">Rekap</span></button>` : "");
+  }
   function refresh() {
     const r = calc(S);
     const L = issues(S, r);
     const st = stepStatus(S, r, L);
     $("strip").innerHTML = stripHTML(S, r);
+    $("strip").style.display = current === "recap" ? "none" : "";
+    renderCands();
     $("step").querySelectorAll(".wsum").forEach((w) => { w.innerHTML = weightNote(r, w.dataset.for === "cur"); });
     document.querySelectorAll("[data-mark]").forEach((m) => {
       const k = m.dataset.mark, state = st[k] || "none";
@@ -1646,11 +1785,16 @@ function renderReport(s) {
     document.querySelectorAll("[data-nav]").forEach((a) => {
       if (a.dataset.nav === current) a.setAttribute("aria-current", "step"); else a.removeAttribute("aria-current");
     });
-    $("who-name").textContent = S.meta.employee.trim() || "New Assessment";
-    $("who-id").textContent = S.meta.employee.trim() ? "" : "Penilaian Baru";
-    const bits = [["Division", S.meta.division], ["Current role", S.cur.role], ["Target role", r.open ? S.tgt.role : ""]].filter((x) => x[1].trim());
+    if (current === "recap") {
+      $("who-name").textContent = "Recap of " + cands.length + (cands.length === 1 ? " Candidate" : " Candidates");
+      $("who-id").textContent = "Rekap Kandidat";
+    } else {
+      $("who-name").textContent = S.meta.employee.trim() || "New Assessment";
+      $("who-id").textContent = S.meta.employee.trim() ? "" : "Penilaian Baru";
+    }
+    const bits = (current === "recap" ? [["Division", S.meta.division], ["Assessed by", S.meta.assessor]] : [["Division", S.meta.division], ["Current role", S.cur.role], ["Target role", r.open ? S.tgt.role : ""]]).filter((x) => x[1].trim());
     $("who").innerHTML = bits.map((b) => `<span><b>${esc(b[0])}:</b> ${esc(b[1])}</span>`).join(" ");
-    document.title = (S.meta.employee.trim() ? S.meta.employee.trim() + " - " : "") + "PPER Succession Assessment";
+    document.title = (current !== "recap" && S.meta.employee.trim() ? S.meta.employee.trim() + " - " : "") + "PPER Succession Assessment";
     updateSaveState();
   }
   function updateSaveState() {
@@ -1675,11 +1819,12 @@ function renderReport(s) {
     if (autosaveOn() && !draftPending) {
       clearTimeout(autoTimer);
       autoTimer = setTimeout(() => {
-        if (lsSet(KEY, JSON.stringify({ savedAt: new Date().toISOString(), state: S }))) { lastAuto = new Date(); updateSaveState(); }
+        if (autosaveOn() && lsSet(KEY, draftJSON())) { lastAuto = new Date(); updateSaveState(); }
       }, 500);
     }
     refresh();
   }
+  function draftJSON() { return JSON.stringify({ savedAt: new Date().toISOString(), cands, active }); }
   function setChoice(path, val, num) {
     if (path === "pipe.pathway" && calc(S).eligible === "Not eligible now") { toast("Not eligible for the Talent Pool, so no pathway can be chosen.", "Belum layak masuk Talent Pool, jadi jalur tidak bisa dipilih."); return; }
     pathSet(path, num ? Number(val) : val); touch(); render(true);
@@ -1738,9 +1883,22 @@ function renderReport(s) {
     "fill-levels-skill"() { fillLevels(S.cur.skills, "name"); },
     "fill-levels-req"() { fillLevels(S.tgt.reqs, "text"); },
     "save-file"() { saveFile(); },
+    "save-draft"() { saveDraft(); },
+    "select-cand"(i) { selectCand(Number(i)); },
+    "go-recap"() { go("recap"); },
+    "add-cand"() { openAddDialog(); },
+    "add-copy"() { closeAddDialog(); addCand(true); },
+    "add-blank"() { closeAddDialog(); addCand(false); },
+    "add-cancel"() { closeAddDialog(); },
+    "remove-cand"() { removeCand(); },
+    "copy-reqs"(i) {
+      const from = cands[Number(i)]; if (!from) return;
+      copyTargetReqs(from, S); touch(); render();
+      toast("Requirements copied from " + candName(from, Number(i)) + ". Check the weights and levels.", "Persyaratan disalin dari " + candName(from, Number(i)) + ". Periksa bobot dan tingkat kebutuhannya.");
+    },
     "open-file"() { $("file").click(); },
-    "csv-summary"() { download(fileStem(S) + "_summary.csv", summaryCSV(S, calc(S)), "text/csv;charset=utf-8"); },
-    "csv-gaps"() { download(fileStem(S) + "_gaps.csv", gapsCSV(S, calc(S)), "text/csv;charset=utf-8"); },
+    "csv-summary"() { download(fileStemAll(cands) + "_summary.csv", summaryCSVAll(cands), "text/csv;charset=utf-8"); },
+    "csv-gaps"() { download(fileStemAll(cands) + "_gaps.csv", gapsCSVAll(cands), "text/csv;charset=utf-8"); },
     "print"() { printReport(); },
     "new"() { newAssessment(); },
     "toggle-id"() { setIdVisible(document.body.classList.contains("no-id")); },
@@ -1763,7 +1921,56 @@ function renderReport(s) {
 
   function setAutosave(on) {
     $("autosavebtn").setAttribute("aria-checked", String(on));
-    if (on) { lsDel(KEY_AUTO_OFF); touch(); } else { lsSet(KEY_AUTO_OFF, "1"); lsDel(KEY); lastAuto = null; updateSaveState(); }
+    if (on) { lsDel(KEY_AUTO_OFF); touch(); } else { lsSet(KEY_AUTO_OFF, "1"); clearTimeout(autoTimer); lsDel(KEY); lsDel(KEY_V1); lastAuto = null; updateSaveState(); }
+  }
+
+  /* ---------- candidates ---------- */
+  function selectCand(i) {
+    if (!cands[i]) return;
+    const fromRecap = current === "recap";
+    S = cands[i]; active = i;
+    if (fromRecap) { go("start"); return; }
+    render(); window.scrollTo(0, 0);
+  }
+  function openAddDialog() {
+    const dlg = $("adddlg");
+    const src = S;
+    const canCopy = !!(src.cur.role.trim() || src.cur.skills.some((x) => x.name.trim()));
+    if (!dlg || typeof dlg.showModal !== "function") { addCand(canCopy && confirm("Copy the Role Standard of " + candName(src, active) + " to the new candidate?\nSalin Standar Role " + candName(src, active) + " ke kandidat baru?")); return; }
+    $("addcopy").hidden = !canCopy;
+    $("addcopy").querySelector(".nm").textContent = candName(src, active);
+    dlg.showModal();
+  }
+  function closeAddDialog() { const dlg = $("adddlg"); if (dlg && dlg.open) dlg.close(); }
+  function addCand(copy) {
+    if (cands.length >= MAX_CANDS) { toast("This file already holds " + MAX_CANDS + " candidates.", "File ini sudah berisi " + MAX_CANDS + " kandidat."); return; }
+    const src = S;
+    const d = newCandidateAfter(src);
+    if (copy) copyRoleStandard(src, d);
+    cands.push(d); S = d; active = cands.length - 1;
+    touch();
+    if (current !== "start") go("start"); else render();
+    setTimeout(() => { const el = $("step").querySelector('[data-bind="meta.employee"]'); if (el) el.focus(); }, 80);
+    toast(copy ? "Candidate added. The Role Standard of the current role was copied; ratings and notes were not." : "Candidate added.", copy ? "Kandidat ditambahkan. Standar Role saat ini disalin; penilaian dan catatan tidak ikut." : "Kandidat ditambahkan.");
+  }
+  function removeCand() {
+    const name = candName(S, active);
+    if (cands.length === 1) {
+      if (hasWorkIn(S) && !confirm("Clear everything entered for " + name + "?\nHapus semua isian untuk " + name + "?")) return;
+      S = newCandidateAfter(S); cands = [S]; active = 0;
+    } else {
+      if (!confirm("Remove " + name + " and everything entered for this candidate from this file?\nHapus " + name + " beserta semua isiannya dari file ini?")) return;
+      cands.splice(active, 1); active = Math.min(active, cands.length - 1); S = cands[active];
+    }
+    touch(); if (current === "start") render(); else go("start");
+    toast(name + " removed.", name + " dihapus.");
+  }
+  function saveDraft() {
+    if (draftPending) { toast("Choose Continue or Start new in the banner first.", "Pilih Lanjutkan atau Mulai baru di banner dulu."); return; }
+    if (!lsSet(KEY, draftJSON())) { toast("This browser does not allow saving a draft. Use Save to file in the Menu.", "Browser ini tidak mengizinkan simpan draf. Pakai Simpan ke file di Menu."); return; }
+    lastAuto = new Date(); updateSaveState();
+    toast("Draft saved in this browser at " + hhmm(lastAuto) + " (" + cands.length + (cands.length === 1 ? " candidate" : " candidates") + "). To keep a copy or use another computer, choose Save to file in the Menu.",
+      "Draf tersimpan di browser ini pukul " + hhmm(lastAuto) + " (" + cands.length + " kandidat). Untuk salinan atau pindah komputer, pilih Simpan ke file di Menu.");
   }
 
   /* ---------- menu ---------- */
@@ -1783,21 +1990,23 @@ function renderReport(s) {
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   }
   function saveFile() {
-    download(fileStem(S) + ".json", JSON.stringify({ app: APP_ID, version: 1, toolVersion: APP_VERSION, savedAt: new Date().toISOString(), state: S }, null, 1), "application/json");
+    download(fileStemAll(cands) + ".json", JSON.stringify({ app: APP_ID, version: 2, toolVersion: APP_VERSION, savedAt: new Date().toISOString(), active, cands }, null, 1), "application/json");
     dirty = false; lastFile = new Date(); updateSaveState();
     toast("Saved. The file is in your Downloads folder. Open it later with Open file.", "Tersimpan. File ada di folder Downloads. Buka lagi nanti dengan Buka file.");
   }
-  function hasWork() { const r = calc(S); return !!(S.meta.employee.trim() || S.cur.role.trim() || S.tgt.role.trim() || r.skills.length || S.tgt.reqs.some((x) => x.text.trim())); }
+  function hasWork() { return cands.some(hasWorkIn); }
   function openFile(file) {
     if (!file) return;
     const rd = new FileReader();
     rd.onload = () => {
       let obj;
       try { obj = JSON.parse(rd.result); } catch (e) { obj = null; }
-      if (!obj || obj.app !== APP_ID || !obj.state) { toast("This file is not a saved assessment from this tool.", "File ini bukan hasil simpan dari alat ini."); return; }
+      if (!obj || obj.app !== APP_ID || !(obj.cands || obj.state)) { toast("This file is not a saved assessment from this tool.", "File ini bukan hasil simpan dari alat ini."); return; }
       if (hasWork() && !confirm("Replace the assessment on screen with this file?\nGanti penilaian di layar dengan file ini?")) return;
-      S = normalize(obj.state); dirty = false; lastFile = new Date(); draftPending = false; $("banner").innerHTML = "";
-      touch(); dirty = false; render();
+      const f = normalizeFile(obj);
+      cands = f.cands; active = f.active; S = cands[active];
+      dirty = false; lastFile = new Date(); draftPending = false; $("banner").innerHTML = "";
+      touch(); dirty = false; if (current === "recap" && cands.length === 1) current = "start"; render();
       if (obj.toolVersion === APP_VERSION) toast("File opened.", "File dibuka.");
       else toast("File opened. It was saved with an older version of the tool. Check the new fields.", "File dibuka. Disimpan dengan versi alat yang lebih lama. Periksa kolom yang baru.");
     };
@@ -1809,13 +2018,13 @@ function renderReport(s) {
     if (!S.meta.division.trim()) S.meta.division = lsGet(KEY_DIVISION) || "";
   }
   function newAssessment() {
-    if (hasWork() && !confirm("Start a new assessment? Anything not saved to a file will be lost.\nMulai penilaian baru? Yang belum disimpan ke file akan hilang.")) return;
-    S = defaultState(); prefillMeta(); dirty = false; lastFile = null; lastAuto = null; draftPending = false; $("banner").innerHTML = "";
-    lsDel(KEY); go("start"); render();
+    if (hasWork() && !confirm("Start a new file? Every candidate not saved to a file will be lost.\nMulai file baru? Semua kandidat yang belum disimpan ke file akan hilang.")) return;
+    S = defaultState(); cands = [S]; active = 0; prefillMeta(); dirty = false; lastFile = null; lastAuto = null; draftPending = false; $("banner").innerHTML = "";
+    lsDel(KEY); lsDel(KEY_V1); go("start"); render();
   }
 
   /* ---------- printing ---------- */
-  function preparePrint() { $("report").innerHTML = renderReport(S); }
+  function preparePrint() { $("report").innerHTML = current === "recap" ? renderRecapReport() : renderReport(S); }
   function printReport() { preparePrint(); window.print(); }
   window.addEventListener("beforeprint", preparePrint);
   window.addEventListener("afterprint", () => { $("report").innerHTML = ""; });
@@ -1889,23 +2098,23 @@ function renderReport(s) {
     const k = location.hash.slice(1);
     current = VIEWS[k] ? k : "start";
     let draft = null;
-    try { draft = JSON.parse(lsGet(KEY) || "null"); } catch (e) { draft = null; }
-    if (draft && draft.state) {
-      const d = normalize(draft.state);
-      const prev = S; S = d; const had = hasWork(); S = prev;
-      if (had) {
+    try { draft = JSON.parse(lsGet(KEY) || lsGet(KEY_V1) || "null"); } catch (e) { draft = null; }
+    if (draft && (draft.cands || draft.state)) {
+      const f = normalizeFile(draft);
+      if (f.cands.some(hasWorkIn)) {
         draftPending = true;
         const when = draft.savedAt ? new Date(draft.savedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "";
-        $("banner").innerHTML = `<div class="banner" role="region" aria-label="Saved draft"><div><b>${esc(d.meta.employee.trim() || "A draft")}</b> was autosaved in this browser${when ? " on " + esc(when) : ""}.` +
+        const who = f.cands.length > 1 ? f.cands.length + " candidates" : (f.cands[0].meta.employee.trim() || "A draft");
+        $("banner").innerHTML = `<div class="banner" role="region" aria-label="Saved draft"><div><b>${esc(who)}</b> was autosaved in this browser${when ? " on " + esc(when) : ""}.` +
           `<span class="id">Draf tersimpan otomatis di browser ini. Lanjutkan atau mulai baru?</span></div><div class="btns">` +
           `<button type="button" class="btn small primary" id="draft-continue">Continue / Lanjutkan</button><button type="button" class="btn small" id="draft-new">Start new / Mulai baru</button></div></div>`;
-        $("draft-continue").onclick = () => { S = d; draftPending = false; $("banner").innerHTML = ""; render(); };
-        $("draft-new").onclick = () => { lsDel(KEY); draftPending = false; $("banner").innerHTML = ""; };
+        $("draft-continue").onclick = () => { cands = f.cands; active = f.active; S = cands[active]; draftPending = false; $("banner").innerHTML = ""; render(); };
+        $("draft-new").onclick = () => { lsDel(KEY); lsDel(KEY_V1); draftPending = false; $("banner").innerHTML = ""; };
       }
     }
     render();
   }
-  window.__app = { get state() { return S; }, set state(v) { S = normalize(v); render(); }, go, render, calc, issues, renderReport, preparePrint, summaryCSV, gapsCSV, normalize };
+  window.__app = { get state() { return S; }, set state(v) { S = normalize(v); cands[active] = S; render(); }, get cands() { return cands; }, get active() { return active; }, addCand, selectCand, removeCand, normalizeFile, summaryCSVAll, gapsCSVAll, go, render, calc, issues, renderReport, preparePrint, summaryCSV, gapsCSV, normalize };
   boot();
 })();
 
