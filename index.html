@@ -468,6 +468,80 @@ select.addtype { width: auto; max-width: 100%; min-height: 34px; padding: 4px 8p
 @media screen and (max-width: 900px) { .tools { flex-wrap: wrap; } .draftbtn { flex: 1 1 100%; } .cand { max-width: 100%; } }
 @media print { .cands, .draftbtn { display: none !important; } }
 
+/* v10: readiness in layers (step 6a, part C) */
+.rlayers { display: flex; flex-direction: column; gap: 14px; max-width: 900px; }
+.rcard { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; }
+.rh { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.rno { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; }
+.rt { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; }
+.rt .id { font-size: 12.5px; font-weight: 400; }
+.rbadge { flex: none; font-size: 12px; font-weight: 500; padding: 2px 10px; border-radius: 999px; background: var(--mute-bg); color: var(--mute); white-space: nowrap; }
+.rbadge.head { background: var(--accent-soft); color: var(--accent); }
+.rbadge.solid { background: var(--accent); color: var(--accent-ink); margin-left: 8px; padding: 3px 12px; font-size: 13px; }
+.rbadge .en, .rbadge .id { display: inline; font-style: normal; font-size: inherit; color: inherit; line-height: inherit; }
+.rbadge .id::before { content: " \00b7  "; }
+table.rcalc { width: 100%; border-collapse: collapse; }
+table.rcalc th, table.rcalc td { text-align: left; vertical-align: top; padding: 7px 12px 7px 0; border-bottom: 1px solid var(--line2); }
+table.rcalc th { width: 36%; font-weight: 500; color: var(--ink2); }
+table.rcalc th .id, table.rcalc td .id { font-size: 12px; }
+table.rcalc tr.total th, table.rcalc tr.total td { border-top: 2px solid var(--line); border-bottom: 0; color: var(--ink); }
+table.rcalc tr.total th { font-weight: 700; }
+table.rcalc tr.total td b { font-size: 16px; display: block; }
+table.rcalc tr.total td b .id { font-weight: 400; font-size: 12px; }
+.rres { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.rres .rlab { color: var(--ink2); font-size: 13px; }
+.rres .rlab .id { font-size: 12px; }
+.rnote { padding: 8px 12px; border-radius: 6px; background: var(--mute-bg); color: var(--ink); line-height: 1.45; }
+.rnote.warn { background: var(--mid-bg); color: var(--mid); }
+.rnote .id { color: inherit; opacity: .85; font-size: 12.5px; }
+.rgrid { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 4px 28px; align-items: start; }
+.rgrid select { width: 100%; }
+.rfinal { background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 8px; padding: 16px 20px; max-width: 900px; margin-top: 14px; }
+.rfinal:empty { display: none; }
+.rfrow { display: flex; align-items: flex-start; gap: 12px 32px; flex-wrap: wrap; }
+.rflab { font-weight: 700; font-size: 15px; line-height: 1.3; margin-bottom: 6px; }
+.rflab .id { font-size: 12.5px; font-weight: 400; }
+.chip.big { font-size: 18px; padding: 3px 18px; }
+.rfmsg { flex: 1 1 260px; min-width: 0; }
+.rwhy { margin-top: 6px; font-size: 13px; overflow-wrap: anywhere; }
+.rtrail { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; }
+.rcard .hint { margin-top: 10px; }
+.rtrail .rk { color: var(--ink2); }
+.rtrail .rk, .rtrail .rk * { white-space: nowrap; display: inline; }
+.rtrail .rk .id { display: inline; font-size: inherit; font-style: normal; }
+.rtrail .rk .id::before { content: " \00b7  "; }
+.rtrail .st { padding: 1px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.howlist { padding-left: 18px; margin: 10px 0; max-width: 760px; }
+.howlist li { margin-bottom: 6px; }
+@media screen and (max-width: 900px) {
+  .rgrid { grid-template-columns: minmax(0, 1fr); }
+  .rcard, .rfinal { padding: 14px 14px; }
+  .rh { flex-wrap: wrap; }
+  .rbadge { white-space: normal; border-radius: 14px; }
+  .rbadge.solid { display: inline-block; margin: 8px 0 0; }
+  table.rcalc th { width: 42%; }
+}
+@media print {
+  #report .rlayers { gap: 4pt; max-width: none; }
+  #report .rcard { padding: 4pt 8pt; border-radius: 3pt; break-inside: avoid; }
+  #report .rh { margin-bottom: 3pt; gap: 6pt; }
+  #report .rno { width: 14pt; height: 14pt; font-size: 8pt; }
+  #report .rt { font-size: 9pt; }
+  #report .rt .id { font-size: 7pt; }
+  #report .rbadge { font-size: 7pt; padding: 0 6pt; }
+  #report .rbadge.solid { padding: 0 6pt; font-size: 7.5pt; }
+  #report table.rcalc th, #report table.rcalc td { padding: 1.5pt 6pt 1.5pt 0; }
+  #report table.rcalc tr.total td b { font-size: 9pt; }
+  #report .rgrid { grid-template-columns: 150pt minmax(0, 1fr); gap: 2pt 8pt; }
+  #report .rfinal { padding: 4pt 8pt; margin-top: 4pt; border-radius: 3pt; max-width: none; break-inside: avoid; }
+  #report .rflab { font-size: 9pt; margin-bottom: 2pt; }
+  #report .chip.big { font-size: 10.5pt; padding: 0 10pt; }
+  #report .rnote { padding: 2pt 6pt; }
+  #report .rres { margin-top: 3pt; }
+  #report .rtrail { margin-top: 3pt; font-size: 8pt; }
+  #report .rwhy { font-size: 8pt; }
+}
+
 </style>
 </head>
 <body>
@@ -679,8 +753,8 @@ C.pathways = [
 C.moves = [
   { a: { en: "At every annual cycle", id: "Setiap siklus tahunan" },
     b: { en: "Re-rate each gap in step 6a, based on evidence, and read the rule again. Calibrate with your supervisor and HC.", id: "Nilai ulang setiap gap di step 6a, berdasarkan bukti, dan baca aturan lagi. Kalibrasikan dengan atasan dan HC." } },
-  { a: { en: "Ready 1–2 Years to Ready ≤ 1 Year", id: "Ready 1–2 Years menjadi Ready ≤ 1 Year" },
-    b: { en: "When no Mandatory gap is Significant any more.", id: "Ketika tidak ada lagi gap Mandatory yang Significant." } },
+  { a: { en: "To a shorter label (for example Ready 1–2 Years to Ready ≤ 1 Year)", id: "Ke label yang lebih singkat (misalnya Ready 1–2 Years menjadi Ready ≤ 1 Year)" },
+    b: { en: "When gaps close: fewer gaps, a Significant gap that becomes Moderate, or a Time to close that changes to Up to 2 years. Re-rate in step 6a and the rule is read again.", id: "Ketika gap tertutup: gap berkurang, gap Significant menjadi Moderate, atau Waktu tutup berubah menjadi Sampai 2 tahun. Nilai ulang di step 6a dan aturan dibaca lagi." } },
   { a: { en: "Ready ≤ 1 Year to Ready Now", id: "Ready ≤ 1 Year menjadi Ready Now" },
     b: { en: "When no Mandatory gap is above Small.", id: "Ketika tidak ada gap Mandatory di atas Small." } },
 ];
@@ -705,14 +779,35 @@ C.flow = [
 ];
 C.gapScale = [
   { v: "None", tone: "good", m: { en: "No difference between what the target role needs and what the candidate shows.", id: "Tidak ada beda antara kebutuhan role tujuan dan yang ditunjukkan kandidat." }, e: { en: "None", id: "Tidak ada" } },
-  { v: "Small", tone: "lite", m: { en: "Can be closed by short training or self-study.", id: "Bisa ditutup dengan pelatihan singkat atau belajar mandiri." }, e: { en: "No effect on readiness", id: "Tidak memengaruhi kesiapan" } },
-  { v: "Moderate", tone: "mid", m: { en: "The candidate already does this work at a lower level; one targeted intervention (project assignment, coaching) closes it.", id: "Kandidat sudah mengerjakan ini di level yang lebih rendah; satu intervensi terarah (penugasan proyek, coaching) bisa menutupnya." }, e: { en: "Allows Ready ≤ 1 Year", id: "Memungkinkan Ready ≤ 1 Year" } },
-  { v: "Significant", tone: "bad", m: { en: "Not yet demonstrated or not part of the current role; needs sustained exposure or experience.", id: "Belum pernah ditunjukkan atau bukan bagian dari role saat ini; butuh paparan dan pengalaman yang berkelanjutan." }, e: { en: "Means Ready 1–2 Years", id: "Berarti Ready 1–2 Years" } },
+  { v: "Small", tone: "lite", m: { en: "Can be closed by short training or self-study.", id: "Bisa ditutup dengan pelatihan singkat atau belajar mandiri." }, e: { en: "Not counted in the readiness result", id: "Tidak dihitung dalam hasil kesiapan" } },
+  { v: "Moderate", tone: "mid", m: { en: "The candidate already does this work at a lower level; one targeted intervention (project assignment, coaching) closes it.", id: "Kandidat sudah mengerjakan ini di level yang lebih rendah; satu intervensi terarah (penugasan proyek, coaching) bisa menutupnya." }, e: { en: "Counts 1 point of workload", id: "Dihitung 1 poin beban" } },
+  { v: "Significant", tone: "bad", m: { en: "Not yet demonstrated or not part of the current role; needs sustained exposure or experience.", id: "Belum pernah ditunjukkan atau bukan bagian dari role saat ini; butuh paparan dan pengalaman yang berkelanjutan." }, e: { en: "Counts 3 points of workload; also choose Time to close", id: "Dihitung 3 poin beban; pilih juga Waktu tutup" } },
 ];
 C.readyRule = [
   { v: "Ready Now", tone: "good", c: { en: "No Mandatory gap above Small.", id: "Tidak ada gap Mandatory di atas Small." }, n: { en: "Could take over if needed.", id: "Bisa langsung menggantikan jika dibutuhkan." } },
-  { v: "Ready ≤ 1 Year", tone: "mid", c: { en: "Mandatory gaps are Moderate at most.", id: "Gap Mandatory paling berat Moderate." }, n: { en: "Needs targeted development, no new experience.", id: "Butuh pengembangan terarah, tanpa pengalaman baru." } },
-  { v: "Ready 1–2 Years", tone: "bad", c: { en: "At least one Mandatory gap is Significant.", id: "Minimal satu gap Mandatory bersifat Significant." }, n: { en: "Needs broader experience before readiness is re-rated.", id: "Butuh pengalaman lebih luas sebelum kesiapan dinilai ulang." } },
+  { v: "Ready ≤ 1 Year", tone: "lite", c: { en: "Years needed: 1 or less. Only Moderate gaps, about 3 at a normal pace.", id: "Tahun dibutuhkan: 1 atau kurang. Hanya gap Moderate, sekitar 3 pada kecepatan normal." }, n: { en: "Needs targeted development, no new experience.", id: "Butuh pengembangan terarah, tanpa pengalaman baru." } },
+  { v: "Ready 1–2 Years", tone: "mid", c: { en: "Years needed: more than 1, up to 2.", id: "Tahun dibutuhkan: lebih dari 1, sampai 2." }, n: { en: "Needs broader experience, or has too many gaps to close in one year.", id: "Butuh pengalaman lebih luas, atau gap terlalu banyak untuk ditutup dalam setahun." } },
+  { v: "Ready 3+ Years", tone: "bad", c: { en: "Years needed: more than 2, or a Significant gap is marked More than 2 years.", id: "Tahun dibutuhkan: lebih dari 2, atau ada gap Significant bertanda Lebih dari 2 tahun." }, n: { en: "Needs sustained experience that takes longer than two years.", id: "Butuh pengalaman berkelanjutan yang memakan waktu lebih dari dua tahun." } },
+];
+/* How the years needed are worked out. Shown under the rule table. */
+C.readyHow = [
+  { en: "Only Mandatory requirements count. A gap rated None or Small does not count.", id: "Hanya persyaratan Mandatory yang dihitung. Gap None atau Small tidak dihitung." },
+  { en: "Workload: each Moderate gap is 1 point and each Significant gap is 3 points.", id: "Beban: setiap gap Moderate 1 poin dan setiap gap Significant 3 poin." },
+  { en: "Capacity: a person works through 3 points a year at a normal pace. Learning Agility changes the pace: score 1 = 0.75, score 2 = 1, score 3 = 1.25.", id: "Kapasitas: seseorang menyelesaikan 3 poin per tahun pada kecepatan normal. Learning Agility mengubah kecepatan: skor 1 = 0,75, skor 2 = 1, skor 3 = 1,25." },
+  { en: "Years by workload = workload ÷ capacity. Years by the longest gap = 1 if there are only Moderate gaps, 2 if there is a Significant gap, more than 2 if a Significant gap is marked More than 2 years.", id: "Tahun menurut beban = beban ÷ kapasitas. Tahun menurut gap terlama = 1 jika hanya ada gap Moderate, 2 jika ada gap Significant, lebih dari 2 jika ada gap Significant bertanda Lebih dari 2 tahun." },
+  { en: "Years needed = the larger of the two. It gives the label above.", id: "Tahun dibutuhkan = yang lebih besar dari keduanya. Hasilnya menjadi label di atas." },
+  { en: "Limit from Performance: an Emerging Talent (Performance not yet Exceeds) cannot be Ready Now. The best result is Ready ≤ 1 Year.", id: "Batas dari Kinerja: Emerging Talent (Kinerja belum Exceeds) tidak bisa Ready Now. Hasil terbaiknya Ready ≤ 1 Year." },
+  { en: "The Head may move the result one level sooner or later, and must write the reason. The adjustment comes last, so it can go past the limit from Performance.", id: "Head boleh menggeser hasil satu tingkat lebih cepat atau lebih lambat, dan wajib menulis alasan. Penyesuaian dilakukan terakhir, jadi bisa melewati batas dari Kinerja." },
+  { en: "Proposal, to be confirmed with PPER leadership: the points, the capacity of 3 a year and the pace values.", id: "Usulan, perlu dikonfirmasi dengan pimpinan PPER: poin, kapasitas 3 per tahun, dan nilai kecepatan." },
+];
+C.tclose = [
+  { v: "Up to 2 years", id: "Sampai 2 tahun", tone: "mid" },
+  { v: "More than 2 years", id: "Lebih dari 2 tahun", tone: "bad" },
+];
+C.adjOpts = [
+  { v: "", en: "Keep the result", id: "Pertahankan hasil" },
+  { v: "sooner", en: "One level sooner", id: "Satu tingkat lebih cepat" },
+  { v: "later", en: "One level later", id: "Satu tingkat lebih lambat" },
 ];
 C.readyNote = {
   en: "The year labels are an expected range, not a deadline. Re-rate once every annual cycle, based on evidence.",
@@ -734,6 +829,8 @@ C.words = [
   ["Talent Pool", "People who may be prepared for broader or critical roles. Not a guaranteed successor.", "Orang yang mungkin disiapkan untuk role yang lebih luas atau kritikal. Bukan jaminan jadi penerus."],
   ["Key accountability", "A main duty of the role, from the Job Description. Only this type takes a weight (%).", "Tugas utama role, dari Job Description. Hanya jenis ini yang diberi bobot (%)."],
   ["Weight (%)", "How much a Key accountability counts in the role, copied from the Job Description (% Bobot). All weights total 100.", "Seberapa besar bobot sebuah Key accountability dalam role, disalin dari Job Description (% Bobot). Total semua bobot 100."],
+  ["Readiness", "How soon the candidate could take the target role: Ready Now, Ready ≤ 1 Year, Ready 1–2 Years or Ready 3+ Years. It comes from the Mandatory gaps in step 6a (workload against capacity, and the longest gap), then the limit from Performance and the Head's adjustment. The year labels are an expected range, not a deadline.", "Seberapa cepat kandidat bisa mengisi role tujuan: Ready Now, Ready ≤ 1 Year, Ready 1–2 Years, atau Ready 3+ Years. Berasal dari gap Mandatory di step 6a (beban terhadap kapasitas, dan gap terlama), lalu batas dari Kinerja dan penyesuaian Head. Label tahun adalah perkiraan rentang, bukan tenggat."],
+  ["Time to close", "For a Significant gap on a Mandatory requirement: Up to 2 years (the default) or More than 2 years, chosen by the Head. It sets the longest gap in the readiness rule.", "Untuk gap Significant pada persyaratan Mandatory: Sampai 2 tahun (default) atau Lebih dari 2 tahun, dipilih Head. Ini menentukan gap terlama dalam aturan kesiapan."],
   ["Weighted Gap", "The share of the Key accountability weight not yet covered. Information only; it does not set the readiness result.", "Porsi bobot Key accountability yang belum tertutup. Hanya informasi; tidak menentukan hasil kesiapan."],
   ["Hard skill", "Technical knowledge, tools, certification or experience the role needs.", "Pengetahuan teknis, alat, sertifikasi, atau pengalaman yang dibutuhkan role."],
   ["Soft skill", "A behaviour or soft skill the role needs.", "Perilaku atau soft skill yang dibutuhkan role."],
@@ -752,6 +849,7 @@ C.example = [
   ["Requirement level", "Tingkat kebutuhan", "Mandatory", ""],
   ["Candidate today", "Kandidat saat ini", "Proposes a KPI call; the supervisor decides.", "Mengusulkan keputusan KPI; atasan yang memutuskan."],
   ["Gap", "Gap", "Significant", ""],
+  ["Time to close", "Waktu tutup", "Up to 2 years", "Sampai 2 tahun"],
   ["Development objective", "Tujuan pengembangan", "Decide and own the outcome when information is incomplete.", "Memutuskan dan bertanggung jawab atas hasilnya saat informasi belum lengkap."],
   ["Recommended intervention", "Intervensi yang disarankan", "On-the-Job Training: act as the Head's delegate within agreed limits.", "On-the-Job Training: bertindak sebagai delegasi Head dalam batas yang disepakati."],
   ["Additional information", "Informasi tambahan", "Acts as delegate for one reporting cycle; the Head reviews each decision and asks for a written rationale.", "Menjadi delegasi selama satu siklus pelaporan; Head mereview setiap keputusan dan meminta alasan tertulis."],
@@ -759,7 +857,7 @@ C.example = [
 
 /* State, rules and exports. No DOM in this file. */
 const APP_ID = "PPER-Succession-Assessment";
-const APP_VERSION = "v9";
+const APP_VERSION = "v10";
 const MAX_CANDS = 30;
 
 function uid() { return Math.random().toString(36).slice(2, 9); }
@@ -778,6 +876,15 @@ const AREA_OLD = { "Competency": "Soft skill", "Relationship & authority": "Soft
 const normArea = (a) => AREA_OLD[a] || a;
 
 const KA = "Key accountability";
+
+/* Readiness (v10). All numbers here are a proposal, to be confirmed with PPER leadership. */
+const TCLOSE = ["Up to 2 years", "More than 2 years"];   /* time to close a Significant gap, chosen by the Head */
+const TCLOSE_LONG = "More than 2 years";
+const ADJ = ["sooner", "later"];                          /* the Head's adjustment of the readiness result */
+const READY_LEVELS = ["Ready Now", "Ready ≤ 1 Year", "Ready 1–2 Years", "Ready 3+ Years"];
+const PACE = { 1: 0.75, 2: 1, 3: 1.25 };                 /* Learning Agility score to pace */
+const CAP_BASE = 3;                                       /* points of workload a person works through in a year at pace 1 */
+const PTS_MOD = 1, PTS_SIG = 3;                           /* workload points of a Moderate and of a Significant gap */
 const isKA = (x) => x.area === KA;
 /* A requirement list keeps its Key accountability rows first, then the skill rows, so the numbers read the same in every step. */
 const groupSort = (list) => list.filter(isKA).concat(list.filter((x) => !isKA(x)));
@@ -792,7 +899,7 @@ function newSkill(area) {
     pd: { objective: "", intervention: "", info: "", date: "", status: "", notes: "" } };
 }
 function newReq(area) {
-  return { id: uid(), area: area || "", text: "", weight: "", level: "", today: "", gap: "", objective: "", intervention: "", info: "" };
+  return { id: uid(), area: area || "", text: "", weight: "", level: "", today: "", gap: "", tclose: "", objective: "", intervention: "", info: "" };
 }
 function newExtra() {
   return { id: uid(), gap: "", objective: "", intervention: "", info: "", date: "", status: "", notes: "" };
@@ -803,7 +910,7 @@ function defaultState() {
     app: APP_ID, v: 1,
     meta: { employee: "", division: "", assessor: "", date: todayISO() },
     cur: { role: "", skills: [KA, KA, KA, "", "", ""].map((a) => newSkill(a)) },
-    tgt: { role: "", reqs: [KA, KA, KA, KA, "", "", "", ""].map((a) => newReq(a)) },
+    tgt: { role: "", reqs: [KA, KA, KA, KA, "", "", "", ""].map((a) => newReq(a)), adj: "", adjWhy: "" },
     pdExtra: [],
     ta: { impact: null, scarcity: null, dependency: null, vacancy: "", perf: "", agility: null, leadership: null, cross: null, aspiration: null },
     pipe: { pathway: "", rationale: "", notes: "" },
@@ -838,6 +945,7 @@ function normalize(raw) {
   }
   const tgt = o.tgt || {};
   d.tgt.role = str(tgt.role);
+  d.tgt.adj = ADJ.includes(str(tgt.adj)) ? str(tgt.adj) : ""; d.tgt.adjWhy = str(tgt.adjWhy);
   if (Array.isArray(tgt.reqs)) {
     d.tgt.reqs = tgt.reqs.map((x) => {
       const b = newReq(); x = x || {};
@@ -846,6 +954,7 @@ function normalize(raw) {
       b.info = str(x.info) || str(x.evidence);
       b.area = normArea(b.area);
       b.weight = isNum(x.weight) ? String(x.weight) : str(x.weight);
+      b.tclose = TCLOSE.includes(str(x.tclose)) ? str(x.tclose) : "";
       return b;
     });
     d.tgt.reqs = groupSort(d.tgt.reqs);
@@ -990,12 +1099,37 @@ function calc(s) {
   r.mandatory = r.reqs.filter((q) => q.level === "Mandatory").length;
   r.unrated = r.reqs.filter((q) => !q.gap).length;
   r.noLevel = r.reqs.filter((q) => !q.level).length;
+  /* Readiness (v10), Mandatory gaps only.
+     Workload: Moderate 1 point, Significant 3 points. Capacity: 3 points a year, times the pace from Learning Agility (1 = 0.75, 2 = 1, 3 = 1.25).
+     Years needed = the larger of (workload / capacity) and the longest single gap (only Moderate: 1; a Significant gap: 2; a Significant gap marked More than 2 years: more than 2). */
+  r.sigLong = r.reqs.filter((q) => q.level === "Mandatory" && q.gap === "Significant" && q.tclose === TCLOSE_LONG).length;
+  r.pace = PACE[s.ta.agility] || 1;
+  r.load = PTS_MOD * r.mod + PTS_SIG * r.sig;
+  r.cap = CAP_BASE * r.pace;
+  r.yLoad = r.load / r.cap;
+  r.yLong = r.sig ? (r.sigLong ? 3 : 2) : r.mod ? 1 : 0;
+  r.years = Math.max(r.yLoad, r.yLong);
+  r.byRule = ""; r.readyLimit = ""; r.limited = false; r.adjApplied = false; r.adjPending = false; r.adjEdge = false;
+  r.adj = s.tgt.adj || ""; r.adjWhy = String(s.tgt.adjWhy || "").trim();
   if (!r.reqs.length) r.readiness = "";
   else if (r.noLevel) r.readiness = "Incomplete: set the requirement level on every row";
   else if (r.unrated) r.readiness = "Incomplete: rate every requirement";
-  else if (r.sig > 0) r.readiness = "Ready 1–2 Years";
-  else if (r.mod > 0) r.readiness = "Ready ≤ 1 Year";
-  else r.readiness = "Ready Now";
+  else {
+    const y = r.years;
+    r.byRule = y <= 0 ? "Ready Now" : y <= 1.0001 ? "Ready ≤ 1 Year" : y <= 2.0001 ? "Ready 1–2 Years" : "Ready 3+ Years";
+    r.readyLimit = r.byRule;
+    /* Limit from Performance: an Emerging Talent (Performance not yet Exceeds) cannot be Ready Now. */
+    if (r.segment === "Emerging Talent" && r.byRule === "Ready Now") { r.readyLimit = "Ready ≤ 1 Year"; r.limited = true; }
+    r.readiness = r.readyLimit;
+    /* The Head may move the result one level, with a written reason. It is applied after the limit. */
+    if (r.adj) {
+      if (!r.adjWhy) r.adjPending = true;
+      else {
+        const i = READY_LEVELS.indexOf(r.readyLimit), j = Math.max(0, Math.min(READY_LEVELS.length - 1, i + (r.adj === "sooner" ? -1 : 1)));
+        if (j === i) r.adjEdge = true; else { r.readiness = READY_LEVELS[j]; r.adjApplied = true; }
+      }
+    }
+  }
 
   /* Weighted Gap: information only. It never changes the readiness result. */
   r.acc = r.reqs.filter((q) => q.area === "Key accountability");
@@ -1019,7 +1153,7 @@ const TONE = {
   "Immediate": "bad", "Planned Coverage": "mid", "Replacement Planning": "mute",
   "High Performer": "good", "Emerging Talent": "good", "Core Contributor": "mute", "Development Needed": "mid",
   "Eligible": "good", "Not eligible now": "mute",
-  "Ready Now": "good", "Ready ≤ 1 Year": "lite", "Ready 1–2 Years": "mid",
+  "Ready Now": "good", "Ready ≤ 1 Year": "lite", "Ready 1–2 Years": "mid", "Ready 3+ Years": "bad",
 };
 function toneOf(v) { return TONE[v] || "mute"; }
 
@@ -1035,7 +1169,7 @@ function gapList(s, r) {
 }
 function keyGapText(s, r) {
   const list = gapList(s, r);
-  const sig = list.filter((x) => x.g === "Significant").map((x) => "#" + x.n + wTag(x.q) + " " + shortText(x.q.text, 70));
+  const sig = list.filter((x) => x.g === "Significant").map((x) => "#" + x.n + wTag(x.q) + " " + shortText(x.q.text, 70) + (x.q.tclose === TCLOSE_LONG ? " (more than 2 years)" : ""));
   const mod = list.filter((x) => x.g === "Moderate").map((x) => "#" + x.n + wTag(x.q) + " " + shortText(x.q.text, 70));
   const out = [];
   if (sig.length) out.push("Significant: " + sig.join("; ") + ".");
@@ -1103,6 +1237,7 @@ function issues(s, r) {
     if (r.reqs.length && r.unrated) add("s6a", r.unrated + " requirement(s) not rated yet.", r.unrated + " persyaratan belum dinilai.");
     const gm = r.reqs.filter((q) => (q.gap === "Moderate" || q.gap === "Significant") && (!q.objective.trim() || !q.intervention.trim())).length;
     if (gm) add("s6a", gm + " Moderate or Significant gap(s) still need an objective and an intervention.", gm + " gap Moderate atau Significant masih butuh tujuan dan intervensi.");
+    if (r.adjPending) add("s6a", "You chose to move the readiness result. Write the reason, or choose Keep the result.", "Anda memilih menggeser hasil kesiapan. Tulis alasannya, atau pilih Pertahankan hasil.");
     if (!s.sp.keyGap.trim()) add("s6b", "Write the Key Gap.", "Tulis Gap utama.");
     if (!s.sp.devAction.trim()) add("s6b", "Write the Development Action.", "Tulis Aksi pengembangan.");
   }
@@ -1144,17 +1279,19 @@ function csvEscape(v) {
 function toCSV(rows) { return "﻿" + rows.map((row) => row.map(csvEscape).join(",")).join("\r\n"); }
 const SUMMARY_HEAD = ["Division", "Candidate", "Assessed by", "Assessment date", "Current role", "Target role", "Role criticality", "Criticality score (of 9)", "Vacancy risk",
   "Succession priority", "Performance", "Performance source", "Step 2 average (of 3)", "Potential total (of 12)", "Potential level", "Talent segment", "Pathway", "Readiness",
-  "Mandatory gaps: Significant", "Mandatory gaps: Moderate", "Weighted gap % (info only)", "Key gap", "Development action", "Next annual review"];
+  "Readiness by the rule", "Limit from Performance applied", "Head adjustment", "Head adjustment reason",
+  "Mandatory gaps: Significant", "Mandatory gaps: Moderate", "Significant gaps marked more than 2 years", "Workload (points)", "Capacity (points a year)", "Years needed (estimate)", "Weighted gap % (info only)", "Key gap", "Development action", "Next annual review"];
 function summaryRow(s, r) {
   return [s.meta.division, s.meta.employee, s.meta.assessor, s.meta.date, s.cur.role, s.tgt.role, r.crit, r.critTotal == null ? "" : r.critTotal, s.ta.vacancy,
     r.priority, r.perf, r.perfSrc === "manual" ? "Chosen by hand" : r.perfSrc === "step2" ? (r.pool.capped ? "Pooled from step 2, held at Meets by a Below skill" : "Pooled from step 2") : "", r.pool.avg == null ? "" : r.pool.avg, r.potTotal == null ? "" : r.potTotal, r.potLevel, r.segment, r.pathway, r.readiness,
-    r.sig, r.mod, r.wgap == null ? "" : r.wgap, s.sp.keyGap, s.sp.devAction, s.sp.review];
+    r.byRule, r.limited ? "Yes" : "", r.adjApplied ? (r.adj === "sooner" ? "One level sooner" : "One level later") : r.adjPending ? "Not applied (no reason written)" : "", r.adj ? r.adjWhy : "",
+    r.sig, r.mod, r.byRule ? r.sigLong : "", r.byRule ? r.load : "", r.byRule ? Math.round(r.cap * 100) / 100 : "", r.byRule ? Math.round(r.years * 100) / 100 : "", r.wgap == null ? "" : r.wgap, s.sp.keyGap, s.sp.devAction, s.sp.review];
 }
 function summaryCSV(s, r) { return toCSV([SUMMARY_HEAD, summaryRow(s, r)]); }
 function summaryCSVAll(list) { return toCSV([SUMMARY_HEAD].concat((list.length > 1 ? list.filter(hasWorkIn) : list).map((s) => summaryRow(s, calc(s))))); }
-const GAPS_HEAD = ["Candidate", "Target role", "#", "Area", "Requirement", "Weight (%)", "Requirement level", "Candidate today", "Gap", "Development objective", "Recommended intervention", "Additional information"];
+const GAPS_HEAD = ["Candidate", "Target role", "#", "Area", "Requirement", "Weight (%)", "Requirement level", "Candidate today", "Gap", "Time to close", "Development objective", "Recommended intervention", "Additional information"];
 function gapsRows(s, r) {
-  return r.reqs.map((q, i) => [s.meta.employee, s.tgt.role, i + 1, q.area, q.text, wOf(q) == null ? "" : wOf(q), q.level, q.today, q.gap, q.objective, q.intervention, q.info]);
+  return r.reqs.map((q, i) => [s.meta.employee, s.tgt.role, i + 1, q.area, q.text, wOf(q) == null ? "" : wOf(q), q.level, q.today, q.gap, q.level === "Mandatory" && q.gap === "Significant" ? (q.tclose || TCLOSE[0]) : "", q.objective, q.intervention, q.info]);
 }
 function gapsCSV(s, r) { return toCSV([GAPS_HEAD].concat(gapsRows(s, r))); }
 function gapsCSVAll(list) { return toCSV([GAPS_HEAD].concat(...list.map((s) => gapsRows(s, calc(s))))); }
@@ -1316,6 +1453,110 @@ function gotoBtn(key, en, id, primary) {
   return `<button type="button" class="btn${primary ? " primary" : ""}" data-go="${key}">${T(en, id)}</button>`;
 }
 
+/* ---------- Readiness in layers (step 6a, part C) ---------- */
+const yr = (x) => String(Math.round(x * 10) / 10).replace(/\.0$/, "");
+const yrId = (x) => yr(x).replace(".", ",");
+const num2 = (x) => Math.round(x * 100) / 100;
+/* The years needed as text. A Significant gap marked More than 2 years sets the floor at "more than 2". */
+const yearsText = (r) => (r.sigLong && r.yLoad <= 3 ? "More than 2" : yr(r.years));
+const yearsTextId = (r) => (r.sigLong && r.yLoad <= 3 ? "Lebih dari 2" : yrId(r.years));
+const readyHowList = () => `<ul class="note howlist">` + C.readyHow.map((h) => `<li>${T(h.en, h.id)}</li>`).join("") + `</ul>`;
+const rcard = (no, en, id, badge, isHead, inner) => `<section class="rcard"><div class="rh"><span class="rno" aria-hidden="true">${no}</span><h4 class="rt">${T(en, id)}</h4>` +
+  `<span class="rbadge${isHead ? " head" : ""}"><span class="en">${esc(badge[0])}</span><span class="id">${esc(badge[1])}</span></span></div>${inner}</section>`;
+
+function readyPillHTML(r) {
+  return `<b style="font-size:15px">${chip(r.readiness, "—")}${r.adjApplied ? ` <span class="tag lvl-m">Adjusted</span>` : ""}</b>${T("Readiness", "Kesiapan")}`;
+}
+/* The grey-blue box at the end: the final result and how it was reached. Redrawn alone while the reason is typed. */
+function readyFinalHTML(r) {
+  if (!r.byRule) return "";
+  const dirEn = r.adj === "sooner" ? "one level sooner" : "one level later";
+  const dirId = r.adj === "sooner" ? "satu tingkat lebih cepat" : "satu tingkat lebih lambat";
+  let msg;
+  if (r.adjApplied) {
+    msg = T("Adjusted by the Head: " + dirEn + ". The result by the rule stays visible, so the adjustment can always be traced.",
+      "Disesuaikan oleh Head: " + dirId + ". Hasil menurut aturan tetap terlihat, jadi penyesuaian selalu bisa dilacak.") +
+      `<div class="rwhy"><b>${T("Reason", "Alasan")}</b> ${esc(r.adjWhy)}</div>`;
+  } else if (r.adjPending) {
+    msg = `<div class="rnote warn" role="status">${T("You chose to move the result, but the reason is empty. The result is not moved until you write the reason.",
+      "Anda memilih menggeser hasil, tetapi alasannya masih kosong. Hasil belum bergeser sampai Anda menulis alasan.")}</div>`;
+  } else if (r.adjEdge) {
+    msg = `<div class="rnote" role="status">${r.adj === "sooner"
+      ? T("The result is already at the soonest level, so it cannot move sooner.", "Hasil sudah di tingkat tercepat, jadi tidak bisa digeser lebih cepat.")
+      : T("The result is already at the latest level, so it cannot move later.", "Hasil sudah di tingkat terlambat, jadi tidak bisa digeser lebih lambat.")}</div>`;
+  } else {
+    msg = T("Same as the result " + (r.limited ? "after the limit from Performance" : "by the rule") + ". Not adjusted by the Head. Re-rate at the next annual cycle, based on evidence.",
+      "Sama dengan hasil " + (r.limited ? "setelah batas dari Kinerja" : "menurut aturan") + ". Tidak disesuaikan Head. Nilai ulang pada siklus tahunan berikutnya, berdasarkan bukti.");
+  }
+  const st = (t) => `<span class="st">${esc(t)}</span>`;
+  const trail = r.adjApplied || r.limited
+    ? `<div class="rtrail"><span class="rk">${T("Trail", "Jejak")}:</span>${st("Rule: " + r.byRule)}` +
+      (r.limited ? `<span aria-hidden="true">→</span>${st("Limit: " + r.readyLimit)}` : "") +
+      (r.adjApplied ? `<span aria-hidden="true">→</span>${st("Head: " + r.readiness)}` : "") + `</div>`
+    : "";
+  return `<div class="rfrow"><div><div class="rflab">${T("Final readiness", "Kesiapan akhir")}</div>` +
+    `<div><span class="chip big ${tone(toneOf(r.readiness))}">${esc(r.readiness)}</span>${r.adjApplied ? ` <span class="rbadge head solid"><span class="en">Adjusted by the Head</span><span class="id">Disesuaikan Head</span></span>` : ""}</div></div>` +
+    `<div class="rfmsg">${msg}</div></div>${trail}`;
+}
+/* One plain-text line that says how the readiness was reached (step 6b) */
+function readyTrailText(r) {
+  if (!r.byRule) return "";
+  let t = "By the rule: " + r.byRule + " (workload " + r.load + " points; capacity " + num2(r.cap) + " points a year; years needed " + (yearsText(r).toLowerCase()) + ").";
+  t += r.limited ? " Limit from Performance applied: " + r.readyLimit + "." : " No limit from Performance applied.";
+  t += r.adjApplied ? " Head's adjustment: " + (r.adj === "sooner" ? "one level sooner" : "one level later") + ", to " + r.readiness + ". Reason: " + r.adjWhy : " Not adjusted by the Head.";
+  return t;
+}
+
+function readyPanel(s, r) {
+  if (!r.reqs.length) return "";
+  if (!r.byRule) return noteP("The readiness result appears when every requirement has a level (part A) and a gap rating (part B).",
+    "Hasil kesiapan muncul setelah setiap persyaratan punya tingkat kebutuhan (bagian A) dan penilaian gap (bagian B).");
+  const ag = s.ta.agility;
+  const row = (en, id, val, cls) => `<tr${cls ? ` class="${cls}"` : ""}><th scope="row">${T(en, id)}</th><td>${val}</td></tr>`;
+  const pts = (n, per) => T(`${n} × ${per} = ${n * per} points`, `${n} × ${per} = ${n * per} poin`);
+  const longT = !r.sig && !r.mod ? T("0 (no Mandatory gap above Small)", "0 (tidak ada gap Mandatory di atas Small)")
+    : r.sigLong ? T("More than 2 (" + r.sigLong + " Significant gap marked More than 2 years)", "Lebih dari 2 (" + r.sigLong + " gap Significant bertanda Lebih dari 2 tahun)")
+    : r.sig ? T("2 (there is a Significant gap)", "2 (ada gap Significant)")
+    : T("1 (only Moderate gaps)", "1 (hanya gap Moderate)");
+  const calcT = `<table class="rcalc"><tbody>` +
+    row("Significant gaps (Mandatory)", "Gap Significant (Mandatory)", pts(r.sig, PTS_SIG)) +
+    row("Moderate gaps (Mandatory)", "Gap Moderate (Mandatory)", pts(r.mod, PTS_MOD)) +
+    row("Workload", "Beban", T(r.load + " points", r.load + " poin")) +
+    row("Capacity a year", "Kapasitas per tahun",
+      T(`${CAP_BASE} points × pace ${r.pace}` + (isNum(ag) ? ` (Learning Agility ${ag})` : "") + ` = ${num2(r.cap)} points`,
+        `${CAP_BASE} poin × kecepatan ${String(r.pace).replace(".", ",")}` + (isNum(ag) ? ` (Learning Agility ${ag})` : "") + ` = ${String(num2(r.cap)).replace(".", ",")} poin`)) +
+    row("Years by workload", "Tahun menurut beban", `${r.load} ÷ ${num2(r.cap)} = ${yr(r.yLoad)}`) +
+    row("Years by the longest gap", "Tahun menurut gap terlama", longT) +
+    row("Years needed (the larger of the two)", "Tahun dibutuhkan (yang lebih besar dari keduanya)", `<b>${T(yearsText(r) + " years", yearsTextId(r) + " tahun")}</b>`, "total") +
+    `</tbody></table>`;
+  const layer1 = rcard(1, "Gap count and years needed", "Hitungan gap dan tahun dibutuhkan", ["Automatic", "Otomatis"], false,
+    calcT + `<div class="rres"><span class="rlab">${T("Result by the rule", "Hasil menurut aturan")}</span>${chip(r.byRule)}</div>` +
+    `<p class="hint">${T("Counted from Mandatory requirements only.", "Dihitung hanya dari persyaratan Mandatory.")}</p>`);
+
+  const limMsg = r.limited
+    ? `<div class="rnote warn">${T("Limit applied. Segment is Emerging Talent, so the result cannot be Ready Now. The best result allowed is Ready ≤ 1 Year.",
+      "Batas berlaku. Segmen Emerging Talent, jadi hasil tidak bisa Ready Now. Hasil terbaik yang diizinkan adalah Ready ≤ 1 Year.")}</div>`
+    : r.segment === "Emerging Talent"
+      ? `<div class="rnote">${T("Segment: Emerging Talent. The best result allowed is Ready ≤ 1 Year. The result by the rule is already slower than this, so nothing changes.",
+        "Segmen: Emerging Talent. Hasil terbaik yang diizinkan adalah Ready ≤ 1 Year. Hasil menurut aturan sudah lebih lambat dari ini, jadi tidak ada yang berubah.")}</div>`
+      : `<div class="rnote">${T("Segment: " + r.segment + ". There is no limit from Performance, so nothing changes.", "Segmen: " + r.segment + ". Tidak ada batas dari Kinerja, jadi tidak ada yang berubah.")}</div>`;
+  const layer2 = rcard(2, "Limit from Performance", "Batas dari Kinerja", ["Automatic", "Otomatis"], false,
+    limMsg + `<div class="rres"><span class="rlab">${T(r.limited ? "After the limit" : "After the limit (no change)", r.limited ? "Setelah batas" : "Setelah batas (tidak berubah)")}</span>${chip(r.readyLimit)}</div>`);
+
+  const opt = C.adjOpts.find((o) => o.v === r.adj) || C.adjOpts[0];
+  const sel = CTX.ro ? `<div class="rv">${esc(opt.en)}</div>`
+    : `<select data-bind="tgt.adj" aria-label="Move the result / Geser hasil">` + C.adjOpts.map((o) => `<option value="${esc(o.v)}"${o.v === r.adj ? " selected" : ""}>${esc(o.en)} / ${esc(o.id)}</option>`).join("") + `</select>`;
+  const why = ctlArea("tgt.adjWhy", s.tgt.adjWhy, { rows: 3, aria: "Reason for moving the result / Alasan menggeser hasil", ph: ph("Only needed when you move the result.") });
+  const layer3 = rcard(3, "Head's adjustment", "Penyesuaian Head", ["By the Head", "Oleh Head"], true,
+    `<div class="rgrid">${field(lbl("Move the result", "Geser hasil"), sel)}` +
+    field(lbl("Reason", "Alasan"), why, hint("Required if the result is moved. The adjustment comes last, so it can go past the limit from Performance.",
+      "Wajib diisi jika hasil digeser. Penyesuaian dilakukan terakhir, jadi bisa melewati batas dari Kinerja.")) + `</div>`);
+
+  return `<div class="rlayers">${layer1}${layer2}${layer3}</div>` +
+    `<section class="rfinal"${CTX.ro ? "" : ' id="readyfinal" aria-live="polite"'}>${readyFinalHTML(r)}</section>` +
+    noteP(C.readyNote.en, C.readyNote.id);
+}
+
 /* ---------- Start here ---------- */
 function viewStart(s, r) {
   const who = sect("Who and what", "Siapa dan apa",
@@ -1334,7 +1575,7 @@ function viewStart(s, r) {
     C.gapScale.map((g) => `<tr><th scope="row"><span class="tag ${tone(g.tone)}">${esc(g.v)}</span></th><td>${T(g.m.en, g.m.id)}</td><td>${T(g.e.en, g.e.id)}</td></tr>`).join("") + `</tbody></table>`;
   const ready = `<table class="ref"><thead><tr><th>${TT("Result", "Hasil")}</th><th>${TT("Condition", "Kondisi")}</th><th>${TT("Note", "Catatan")}</th></tr></thead><tbody>` +
     C.readyRule.map((g) => `<tr><th scope="row"><span class="chip ${tone(g.tone)}">${esc(g.v)}</span></th><td>${T(g.c.en, g.c.id)}</td><td>${T(g.n.en, g.n.id)}</td></tr>`).join("") + `</tbody></table>` +
-    noteP(C.readyNote.en, C.readyNote.id) + noteP(C.weightNote.en, C.weightNote.id);
+    readyHowList() + noteP(C.readyNote.en, C.readyNote.id) + noteP(C.weightNote.en, C.weightNote.id);
   const ex = `<table class="ref"><tbody>` + C.example.map((e) => `<tr><th scope="row">${esc(e[0])}<span class="id">${esc(e[1])}</span></th><td>${esc(e[2])}${e[3] ? `<span class="id">${esc(e[3])}</span>` : ""}</td></tr>`).join("") + `</tbody></table>`;
   const words = `<details class="opt"><summary>${T("Show the word list", "Tampilkan daftar istilah")}</summary><table class="ref"><thead><tr><th>${TT("Word", "Istilah")}</th><th>${TT("Meaning", "Arti")}</th></tr></thead><tbody>` +
     C.words.map((w) => `<tr><th scope="row">${esc(w[0])}</th><td>${esc(w[1])}<span class="id">${esc(w[2])}</span></td></tr>`).join("") + `</tbody></table></details>`;
@@ -1586,8 +1827,13 @@ function viewS6aGap(s, r) {
       intervField(`tgt.reqs.${i}.intervention`, q.intervention) + `</div>` +
       infoField(`tgt.reqs.${i}.info`, q.info);
     const filled = q.objective || q.intervention || q.info;
+    const tcl = q.level === "Mandatory" && q.gap === "Significant"
+      ? `<div class="field">${lbl("Time to close", "Waktu tutup")}${seg(`tgt.reqs.${i}.tclose`, q.tclose || TCLOSE[0], C.tclose, "Time to close for requirement " + n)}` +
+        hint("Default: Up to 2 years. Choose More than 2 years only when closing this gap needs sustained experience that takes longer, for example a long certification path.",
+          "Default: Sampai 2 tahun. Pilih Lebih dari 2 tahun hanya jika menutup gap ini butuh pengalaman berkelanjutan yang lebih lama, misalnya jalur sertifikasi yang panjang.") + `</div>`
+      : "";
     let extra = "";
-    if (need) extra = `<div class="need${q.gap === "Moderate" ? " mid" : ""}">${fields}</div>`;
+    if (need) extra = `<div class="need${q.gap === "Moderate" ? " mid" : ""}">${tcl}${fields}</div>`;
     else if (q.gap === "Small") extra = CTX.ro ? (filled ? fields : "") : `<details class="opt"${filled ? " open" : ""}><summary>${T("Add a development action (optional for a Small gap)", "Tambah aksi pengembangan (opsional untuk gap Small)")}</summary>${fields}</details>`;
     return `<div class="item"><div class="ih"><span class="n">${n}</span><div><div class="t">${esc(q.text)}</div><div class="meta">${q.area ? `<span class="tag">${esc(q.area)}</span>` : ""}${levelTag(q.level)}${wOf(q) != null ? `<span class="tag">Weight ${esc(wOf(q))}%</span>` : ""}</div></div></div>` +
       `<div class="body">${field(lbl("Candidate today", "Kandidat saat ini"), ctlArea(`tgt.reqs.${i}.today`, q.today, { rows: 2, ph: ph("What does the candidate do today that relates to this requirement?") }))}` +
@@ -1596,17 +1842,21 @@ function viewS6aGap(s, r) {
   }).join("");
   const body = r.reqs.length ? `<div class="items">${items}</div>` :
     `<div class="empty">${T("No requirements yet. List the target role's requirements in part A above.", "Belum ada persyaratan. Daftar persyaratan role tujuan di bagian A di atas.")}</div>`;
-  return fromStep2(s, r) +
+  const partB = fromStep2(s, r) +
     `<div class="counts"><div class="pill t-bad"><b>${r.sig}</b>${T("Mandatory gaps: Significant", "Gap Mandatory: Significant")}</div>` +
     `<div class="pill t-mid"><b>${r.mod}</b>${T("Mandatory gaps: Moderate", "Gap Mandatory: Moderate")}</div>` +
-    `<div class="pill"><b style="font-size:15px">${chip(r.readiness, "—")}</b>${T("Readiness by the rule", "Kesiapan menurut aturan")}</div>` +
+    `<div class="pill"${CTX.ro ? "" : ' id="readypill"'}>${readyPillHTML(r)}</div>` +
     (r.wOn ? `<div class="pill"><b>${r.wgap == null ? "—" : esc(r.wgap) + "%"}</b>${T("Weighted Gap (info only)", "Gap Berbobot (info saja)")}</div>` : "") + `</div>` +
-    noteP("Rule: Ready Now = no Mandatory gap above Small. Ready ≤ 1 Year = Mandatory gaps are Moderate at most. Ready 1–2 Years = at least one Significant Mandatory gap. Small gaps and Nice to Have items are developed but do not change the result.",
-      "Aturan: Ready Now = tidak ada gap Mandatory di atas Small. Ready ≤ 1 Year = gap Mandatory paling berat Moderate. Ready 1–2 Years = minimal satu gap Mandatory Significant. Gap Small dan item Nice to Have tetap dikembangkan tetapi tidak mengubah hasil.") +
+    noteP("The readiness result comes from the workload of the Mandatory gaps (Moderate 1 point, Significant 3 points) against the candidate's pace, and from the longest single gap. Part C below shows every step. Small gaps and Nice to Have items are developed but do not change the result.",
+      "Hasil kesiapan berasal dari beban gap Mandatory (Moderate 1 poin, Significant 3 poin) dibanding kecepatan kandidat, dan dari gap terlama. Bagian C di bawah menunjukkan setiap langkahnya. Gap Small dan item Nice to Have tetap dikembangkan tetapi tidak mengubah hasil.") +
     (r.wOn ? (r.wgap != null ? noteP("Weighted Gap: the share of the Key accountability weight that is still open. Each gap counts by its weight: Significant 3, Moderate 2, Small 1, None 0 (out of 3). Information only; it does not change the readiness result.",
         "Gap Berbobot: porsi bobot Key accountability yang masih terbuka. Setiap gap dihitung menurut bobotnya: Significant 3, Moderate 2, Small 1, None 0 (dari 3). Hanya informasi; tidak mengubah hasil kesiapan.")
       : noteP(r.wgapMsg + ". The Weighted Gap shows once the weights and the ratings are complete.", "Belum lengkap. Gap Berbobot tampil setelah bobot dan penilaian lengkap.")) : "") +
     body;
+  return sect("B. Rate the gaps and plan the development", "B. Nilai gap dan rencanakan pengembangan", partB,
+      T("Rate every requirement with the gap scale. Every Moderate or Significant gap needs an objective and an intervention. For a Significant gap, also choose the Time to close.", "Nilai setiap persyaratan dengan skala gap. Setiap gap Moderate atau Significant butuh tujuan dan intervensi. Untuk gap Significant, pilih juga Waktu tutup.")) +
+    sect("C. Readiness result", "C. Hasil kesiapan", readyPanel(s, r),
+      T("Worked out in three layers from the Mandatory gaps above. Layers 1 and 2 are automatic; layer 3 is the Head's own judgement.", "Dihitung dalam tiga lapis dari gap Mandatory di atas. Lapis 1 dan 2 otomatis; lapis 3 adalah penilaian Head sendiri."));
 }
 
 function viewS6a(s, r) {
@@ -1621,8 +1871,7 @@ function viewS6a(s, r) {
     `<div class="field">${lbl("Target role", "Role tujuan")}${autoBox(esc(s.tgt.role), "Enter the target role in step 4")}</div></div>` +
     segNeed +
     sect("A. Requirements of the target role", "A. Persyaratan role tujuan", reqTable(s, r)) +
-    sect("B. Rate the gaps and plan the development", "B. Nilai gap dan rencanakan pengembangan", `<div id="gaparea">${viewS6aGap(s, r)}</div>`,
-      T("Rate every requirement with the gap scale. Every Moderate or Significant gap needs an objective and an intervention.", "Nilai setiap persyaratan dengan skala gap. Setiap gap Moderate atau Significant butuh tujuan dan intervensi."));
+    `<div id="gaparea">${viewS6aGap(s, r)}</div>`;
 }
 
 /* ---------- 6b. Succession Plan ---------- */
@@ -1641,7 +1890,8 @@ function viewS6b(s, r) {
   const ctx = `<div class="field">${lbl("Is the target role critical?", "Apakah role tujuan kritikal?")}${autoBox(r.crit ? esc(r.crit + ", score " + r.critTotal + " of 9; succession priority: " + (r.priority || "not set")) : "", "Complete step 4")}</div>` +
     `<div class="field">${lbl("Candidate's talent segment", "Segmen talenta kandidat")}${autoBox(r.segment ? esc(r.segment + " (Performance: " + r.perf + (r.perfSrc === "step2" ? ", pooled from step 2" : ", chosen by hand") + "; Potential: " + r.potLevel + ", total " + r.potTotal + " of 12)") : "", "Complete step 4")}</div>` +
     `<div class="field">${lbl("People Assessment of the current role (step 2)", "Penilaian Karyawan role saat ini (step 2)")}${autoBox(r.skills.length && !r.rate.none ? esc(r.skills.length + " requirements rated: " + r.rate.Exceeds + " Exceeds, " + r.rate.Meets + " Meets, " + r.rate.Below + " Below. PDP items: " + (r.below.length + s.pdExtra.filter((x) => x.gap.trim() || x.intervention.trim()).length) + ".") : "", "Complete step 2")}</div>` +
-    `<div class="field">${lbl("Mandatory gaps", "Gap Mandatory")}${autoBox(esc("Significant: " + r.sig + "   Moderate: " + r.mod))}</div>` +
+    `<div class="field">${lbl("Mandatory gaps", "Gap Mandatory")}${autoBox(esc("Significant: " + r.sig + "   Moderate: " + r.mod + (r.byRule ? "   Years needed (estimate): " + yearsText(r).toLowerCase() : "")))}</div>` +
+    (r.byRule ? `<div class="field">${lbl("How the readiness was reached", "Bagaimana kesiapan ini dicapai")}${autoBox(esc(readyTrailText(r)))}</div>` : "") +
     (r.wOn ? `<div class="field">${lbl("Weighted Gap (Key accountabilities, info only)", "Gap Berbobot (Key accountability, info saja)")}${autoBox(r.wgap != null ? esc(r.wgap + "% of the Key accountability weight is not yet covered. Readiness comes from the Mandatory-gap rule, not from this number.") : esc(r.wgapMsg))}</div>` : "");
 
   const moves = (CTX.ro ? "" : `<table class="ref"><tbody>` + C.moves.map((m) => `<tr><th scope="row">${esc(m.a.en)}<span class="id">${esc(m.a.id)}</span></th><td>${T(m.b.en, m.b.id)}</td></tr>`).join("") + `</tbody></table>`) +
@@ -1673,7 +1923,7 @@ function recapTable() {
   const rows = list.map((s, i) => {
     const r = calc(s), st = stepStatus(s, r, issues(s, r));
     const done = C.steps.filter((x) => x.key !== "start" && st[x.key] === "done").length;
-    const ready = r.eligible === "Not eligible now" ? mute("Not eligible") : /^Incomplete/.test(r.readiness) ? mute("Incomplete") : chip(r.readiness);
+    const ready = r.eligible === "Not eligible now" ? mute("Not eligible") : /^Incomplete/.test(r.readiness) ? mute("Incomplete") : chip(r.readiness) + (r.adjApplied ? ` <span class="tag lvl-m">Adjusted</span>` : "");
     const open = CTX.ro ? "" : `<button type="button" class="btn small" data-act="select-cand" data-i="${i}">${T("Open", "Buka")}</button>`;
     return `<tr><th scope="row">${esc(candName(s, i))}</th><td>${esc(s.cur.role) || "—"}</td><td>${r.open && s.tgt.role.trim() ? esc(s.tgt.role) : "—"}</td>` +
       `<td>${chip(r.segment)}</td><td>${r.pathway ? esc(r.pathway) : "—"}</td><td>${ready}</td><td>${done} / ${total}</td>${CTX.ro ? "" : `<td>${open}</td>`}</tr>`;
@@ -1706,7 +1956,7 @@ function renderReport(s) {
   CTX.ro = true;
   try {
     const bar = `<div class="rbar"><span><b>Candidate:</b> ${esc(s.meta.employee) || "—"}</span><span><b>Current role:</b> ${esc(s.cur.role) || "—"}</span><span><b>Target role:</b> ${esc(s.tgt.role) || "—"}</span>` +
-      `<span><b>Criticality:</b> ${esc(r.crit) || "—"}</span><span><b>Segment:</b> ${esc(r.segment) || "—"}</span><span><b>Pathway:</b> ${esc(r.pathway) || "—"}</span><span><b>Readiness:</b> ${esc(r.readiness) || "—"}</span>${r.wgap != null ? `<span><b>Weighted gap:</b> ${esc(r.wgap)}%</span>` : ""}</div>`;
+      `<span><b>Criticality:</b> ${esc(r.crit) || "—"}</span><span><b>Segment:</b> ${esc(r.segment) || "—"}</span><span><b>Pathway:</b> ${esc(r.pathway) || "—"}</span><span><b>Readiness:</b> ${esc(r.readiness) || "—"}${r.adjApplied ? " (adjusted by the Head; rule: " + esc(r.byRule) + ")" : ""}</span>${r.wgap != null ? `<span><b>Weighted gap:</b> ${esc(r.wgap)}%</span>` : ""}</div>`;
     const body = ["start", "s1", "s2", "s3", "s4", "s5", "s6a", "s6b"].map((k, i) => `<section class="rstep">${i === 0 ? `<h1>Succession Assessment</h1>${bar}` : ""}${VIEWS[k](s, r)}</section>`).join("");
     return `<div class="ro">${body}</div>`;
   } finally { CTX.ro = false; }
@@ -1809,6 +2059,15 @@ function renderReport(s) {
     box.querySelectorAll("textarea[data-bind]").forEach(autosize);
   }
 
+  /* The Head's adjustment (6a, part C) changes only the final result, so redraw just the final box and the pill.
+     The select and the reason box stay where they are, so focus and typing are not disturbed. */
+  function refreshReady() {
+    if (current !== "s6a") return;
+    const r = calc(S), f = $("readyfinal"), p = $("readypill");
+    if (f) f.innerHTML = readyFinalHTML(r);
+    if (p) p.innerHTML = readyPillHTML(r);
+  }
+
   function stripHTML(s, r) {
     const cell = (k, id, val, sub, tn, big) =>
       `<div class="cell ${val ? tone(tn) : ""}${big ? " big" : ""}"><div class="k">${esc(tcEn(k))}<span class="id">${esc(tcId(id))}</span></div>` +
@@ -1816,7 +2075,7 @@ function renderReport(s) {
     return cell("Is the target role critical?", "Apakah role tujuan kritikal?", r.crit ? r.crit + " (" + r.critTotal + " of 9)" : "", r.priority ? "Priority: " + r.priority : r.eligible === "Not eligible now" ? "Locked: candidate not eligible" : "", toneOf(r.crit)) +
       cell("Talent segment", "Segmen talenta", r.segment, r.eligible ? "Talent Pool: " + r.eligible : "", toneOf(r.segment)) +
       cell("Pathway", "Jalur", r.pathway, r.eligible === "Not eligible now" ? "Locked: not in Talent Pool" : "", "mute") +
-      cell("Readiness", "Kesiapan", r.readiness, r.reqs.length ? r.sig + " Significant, " + r.mod + " Moderate (Mandatory)" : "", r.readiness.indexOf("Incomplete") === 0 ? "mute" : toneOf(r.readiness), true);
+      cell("Readiness", "Kesiapan", r.readiness, r.reqs.length ? r.sig + " Significant, " + r.mod + " Moderate (Mandatory)" + (r.adjApplied ? ". Adjusted by the Head (rule: " + r.byRule + ")" : r.limited ? ". Limit from Performance applied" : "") : "", r.readiness.indexOf("Incomplete") === 0 ? "mute" : toneOf(r.readiness), true);
   }
   /* The candidate bar: one chip per candidate, then Add, then Recap (from two candidates on) */
   function renderCands() {
@@ -2104,6 +2363,7 @@ function renderReport(s) {
     if (el.tagName === "TEXTAREA") autosize(el);
     if (/^(cur\.skills|tgt\.reqs)\.\d+\.(name|text)$/.test(el.dataset.bind)) renumber();
     if (/^tgt\.reqs\.\d+\.(text|weight|level)$/.test(el.dataset.bind)) renderGapArea();
+    if (/^tgt\.adj(Why)?$/.test(el.dataset.bind)) refreshReady();
     if (autosaveOn() && (el.dataset.bind === "meta.assessor" || el.dataset.bind === "meta.division")) lsSet(el.dataset.bind === "meta.assessor" ? KEY_ASSESSOR : KEY_DIVISION, el.value);
     touch();
   });
@@ -2123,6 +2383,7 @@ function renderReport(s) {
     if (!el.dataset || !el.dataset.bind) return;
     pathSet(el.dataset.bind, el.value);
     touch();
+    if (/^tgt\.adj(Why)?$/.test(el.dataset.bind)) refreshReady();
     if (/^(tgt\.reqs|cur\.skills)\.\d+\.area$/.test(el.dataset.bind)) render(true);
   });
   document.addEventListener("click", (e) => {
