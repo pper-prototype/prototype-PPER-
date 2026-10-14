@@ -423,7 +423,11 @@ label.field { display: block; }
 .titleblock h1 .id { font-size: 12px; font-weight: 400; }
 #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 50; max-width: min(560px, calc(100vw - 32px));
   background: var(--ink); color: var(--paper); border-radius: 4px; padding: 10px 16px; box-shadow: 0 8px 24px rgba(0,0,0,.3); display: none; }
-#toast.on { display: block; }
+#toast.on { display: flex; align-items: center; gap: 14px; }
+#toast .tmsg { flex: 1 1 auto; min-width: 0; }
+#toast .tact { flex: none; background: transparent; color: inherit; border: 1px solid currentColor; border-radius: 4px; padding: 4px 14px; font: inherit; font-weight: 700; font-size: 13px; line-height: 1.25; cursor: pointer; text-align: center; }
+#toast .tact:hover, #toast .tact:focus-visible { background: rgba(255,255,255,.16); }
+#toast .tact .id { display: block; font-size: 10.5px; font-weight: 400; opacity: .85; }
 #toast .id { color: inherit; opacity: .8; }
 .rail-note .id { font-size: 11.5px; }
 #report h1 { margin: 0 0 4px; }
@@ -458,12 +462,12 @@ select.addtype { width: auto; max-width: 100%; min-height: 34px; padding: 4px 8p
 .copybar { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0 0 12px; }
 .tablewrap { max-width: 100%; overflow-x: auto; }
 .out.recap { max-width: 1100px; }
-#adddlg { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 20px 22px; width: min(520px, calc(100vw - 32px)); box-shadow: 0 14px 40px rgba(0,0,0,.3); }
-#adddlg::backdrop { background: rgba(10, 26, 30, .45); }
-#adddlg h2 { font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
-#adddlg h2 .id { font-size: 12.5px; font-weight: 400; }
-#adddlg .dlgbtns { display: grid; gap: 8px; margin: 14px 0; }
-#adddlg .dlgbtns .btn { width: 100%; }
+#adddlg, #senddlg, #mergedlg { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 20px 22px; width: min(520px, calc(100vw - 32px)); box-shadow: 0 14px 40px rgba(0,0,0,.3); }
+#adddlg::backdrop, #senddlg::backdrop, #mergedlg::backdrop { background: rgba(10, 26, 30, .45); }
+#adddlg h2, #senddlg h2, #mergedlg h2 { font-size: 17px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
+#adddlg h2 .id, #senddlg h2 .id, #mergedlg h2 .id { font-size: 12.5px; font-weight: 400; }
+#adddlg .dlgbtns, #senddlg .dlgbtns, #mergedlg .dlgbtns { display: grid; gap: 8px; margin: 14px 0; }
+#adddlg .dlgbtns .btn, #senddlg .dlgbtns .btn, #mergedlg .dlgbtns .btn { width: 100%; }
 #adddlg .nm { font-weight: 700; }
 @media screen and (max-width: 900px) { .tools { flex-wrap: wrap; } .draftbtn { flex: 1 1 100%; } .cand { max-width: 100%; } }
 @media print { .cands, .draftbtn { display: none !important; } }
@@ -542,6 +546,19 @@ table.rcalc tr.total td b .id { font-weight: 400; font-size: 12px; }
   #report .rwhy { font-size: 8pt; }
 }
 
+/* v11: pick lists in the save-selected and merge dialogs, hidden menu items */
+.menu-pop button[hidden] { display: none; }
+.pick { display: grid; gap: 6px; margin: 12px 0; max-height: 46vh; overflow: auto; }
+.pickrow { display: grid; grid-template-columns: 22px 1fr; gap: 2px 10px; align-items: start; padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; background: var(--surface); }
+.pickrow:hover { border-color: var(--accent); }
+.pickrow input[type="checkbox"] { grid-row: 1 / span 2; width: 18px; height: 18px; min-height: 0; margin: 2px 0 0; accent-color: var(--accent); }
+.pickrow .pn { font-weight: 700; font-size: 13.5px; line-height: 1.35; }
+.pickrow .ps { font-weight: 400; font-size: 12px; color: var(--ink2); }
+.pickrow .pm { grid-column: 2; font-size: 12px; color: var(--ink2); line-height: 1.4; }
+.pickrow .pm .id { display: block; font-size: 11.5px; }
+.pickrow.repl { border-color: var(--mid); }
+@media print { #senddlg, #mergedlg { display: none !important; } }
+
 </style>
 </head>
 <body>
@@ -573,9 +590,12 @@ table.rcalc tr.total td b .id { font-weight: 400; font-size: 12px; }
             <div class="mh" role="presentation"><span class="en">File</span><span class="id">Berkas</span></div>
             <div class="mnote" id="savetext"></div>
             <button type="button" role="menuitem" data-act="save-file"><span class="en">Save to file (all candidates)</span><span class="id">Simpan ke file (semua kandidat)</span></button>
+            <button type="button" role="menuitem" data-act="send-open" id="sendbtn" hidden><span class="en">Save selected candidates to a file</span><span class="id">Simpan kandidat terpilih ke file</span></button>
             <button type="button" role="menuitem" data-act="open-file"><span class="en">Open file</span><span class="id">Buka file</span></button>
+            <button type="button" role="menuitem" data-act="merge-open"><span class="en">Add candidates from a file</span><span class="id">Gabungkan kandidat dari file</span></button>
             <button type="button" role="menuitem" data-act="remove-cand"><span class="en">Remove this candidate</span><span class="id">Hapus kandidat ini</span></button>
             <button type="button" role="menuitem" data-act="new"><span class="en">New file (clear all candidates)</span><span class="id">File baru (hapus semua kandidat)</span></button>
+            <div class="mnote"><span class="en">A saved file is opened here with Open file. Do not double-click it.</span><span class="id">File simpanan dibuka di sini lewat Buka file. Jangan diklik dua kali.</span></div>
             <div class="mh" role="presentation"><span class="en">Export &amp; Print</span><span class="id">Ekspor &amp; Cetak</span></div>
             <button type="button" role="menuitem" data-act="print"><span class="en">Print or save as PDF</span><span class="id">Cetak atau simpan sebagai PDF</span></button>
             <button type="button" role="menuitem" data-act="csv-summary"><span class="en">Summary, all candidates (CSV)</span><span class="id">Ringkasan, semua kandidat (CSV)</span></button>
@@ -603,9 +623,29 @@ table.rcalc tr.total td b .id { font-weight: 400; font-size: 12px; }
   </div>
   <p class="note"><span class="en">Only the list of requirements is copied. Ratings, notes and development items are not.</span><span class="id">Yang disalin hanya daftar persyaratan. Penilaian, catatan, dan item pengembangan tidak ikut.</span></p>
 </dialog>
+<dialog id="senddlg" aria-labelledby="senddlg-t">
+  <h2 id="senddlg-t"><span class="en">Save selected candidates to a file</span><span class="id">Simpan kandidat terpilih ke file</span></h2>
+  <p class="note"><span class="en">Tick the candidates this file should hold. Send the file, with the tool, to the Head who assesses them. The Head sees only the ticked candidates.</span><span class="id">Centang kandidat yang harus ada di file ini. Kirim file ini, bersama alat, ke Head yang menilai mereka. Head hanya melihat kandidat yang dicentang.</span></p>
+  <div class="pick" id="sendlist"></div>
+  <div class="dlgbtns">
+    <button type="button" class="btn primary" data-act="send-save"><span class="en">Save the file</span><span class="id">Simpan file</span></button>
+    <button type="button" class="btn quiet" data-act="send-cancel"><span class="en">Cancel</span><span class="id">Batal</span></button>
+  </div>
+  <p class="note"><span class="en">The file is not encrypted. Send it only through an official channel.</span><span class="id">File ini tidak dienkripsi. Kirim hanya lewat kanal resmi.</span></p>
+</dialog>
+<dialog id="mergedlg" aria-labelledby="mergedlg-t">
+  <h2 id="mergedlg-t"><span class="en">Add candidates from a file</span><span class="id">Gabungkan kandidat dari file</span></h2>
+  <p class="note"><span id="mergewhen"></span><span class="en">Tick the candidates to take from the file. A candidate who is already here is replaced as a whole, not merged field by field. You can undo right after.</span><span class="id">Centang kandidat yang diambil dari file. Kandidat yang sudah ada di sini diganti seluruhnya, tidak digabung per kolom. Anda bisa membatalkannya segera setelahnya.</span></p>
+  <div class="pick" id="mergelist"></div>
+  <div class="dlgbtns">
+    <button type="button" class="btn primary" data-act="merge-apply"><span class="en">Add the ticked candidates</span><span class="id">Gabungkan yang dicentang</span></button>
+    <button type="button" class="btn quiet" data-act="merge-cancel"><span class="en">Cancel</span><span class="id">Batal</span></button>
+  </div>
+</dialog>
 <div id="report" aria-hidden="true"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="file" accept=".json,application/json" hidden>
+<input type="file" id="mergefile" accept=".json,application/json" hidden>
 <script>
 /* All wording lives here: English first, Indonesian beneath (en / id). */
 const C = {};
@@ -766,8 +806,8 @@ C.howto = [
   { en: "Fill the white fields. Boxes with a dashed edge are automatic; you cannot type in them.", id: "Isi kolom putih. Kotak dengan garis putus-putus otomatis; tidak bisa diketik." },
   { en: "Base every rating on observed work and evidence, not on impressions.", id: "Dasarkan setiap penilaian pada pekerjaan yang teramati dan bukti, bukan kesan." },
   { en: "Before reporting, calibrate the result with your supervisor and HC.", id: "Sebelum dilaporkan, kalibrasikan hasilnya dengan atasan dan HC." },
-  { en: "Nothing is sent over the internet. Your entries stay on this computer. Use Save to file to keep your work and Open file to continue later.",
-    id: "Tidak ada yang dikirim lewat internet. Isian Anda tetap di komputer ini. Pakai Simpan ke file untuk menyimpan pekerjaan dan Buka file untuk melanjutkan." },
+  { en: "Nothing is sent over the internet. Your entries stay on this computer. Use Save to file to keep your work and Open file to continue later. Do not double-click the saved file: open it here, with Menu, then Open file.",
+    id: "Tidak ada yang dikirim lewat internet. Isian Anda tetap di komputer ini. Pakai Simpan ke file untuk menyimpan pekerjaan dan Buka file untuk melanjutkan. Jangan klik dua kali file simpanan: buka di sini, lewat Menu, lalu Buka file." },
 ];
 C.flow = [
   { no: "1", en: "Role Standard", id: "Standar Role", d: { en: "List what the CURRENT role requires, from the Job Description or role mapping.", id: "Daftar apa yang dibutuhkan role SAAT INI, dari Job Description atau mapping role." }, key: "s1" },
@@ -857,7 +897,7 @@ C.example = [
 
 /* State, rules and exports. No DOM in this file. */
 const APP_ID = "PPER-Succession-Assessment";
-const APP_VERSION = "v10";
+const APP_VERSION = "v11";
 const MAX_CANDS = 30;
 
 function uid() { return Math.random().toString(36).slice(2, 9); }
@@ -908,7 +948,7 @@ function newExtra() {
 function defaultState() {
   return {
     app: APP_ID, v: 1,
-    meta: { employee: "", division: "", assessor: "", date: todayISO() },
+    meta: { employee: "", division: "", assessor: "", date: todayISO(), cid: uid() + uid() },
     cur: { role: "", skills: [KA, KA, KA, "", "", ""].map((a) => newSkill(a)) },
     tgt: { role: "", reqs: [KA, KA, KA, KA, "", "", "", ""].map((a) => newReq(a)), adj: "", adjWhy: "" },
     pdExtra: [],
@@ -925,7 +965,8 @@ function normalize(raw) {
   const str = (v) => (typeof v === "string" ? v : "");
   const num = (v) => (isNum(v) && v >= 1 && v <= 3 ? v : null);
   const m = o.meta || {};
-  d.meta = { employee: str(m.employee), division: str(m.division), assessor: str(m.assessor), date: str(m.date) || d.meta.date };
+  /* cid (v11): a stable id of the candidate, so a file that comes back from a Head can be matched to the right candidate. Older files get one on loading. */
+  d.meta = { employee: str(m.employee), division: str(m.division), assessor: str(m.assessor), date: str(m.date) || d.meta.date, cid: str(m.cid) || d.meta.cid };
   const cur = o.cur || {};
   d.cur.role = str(cur.role);
   if (Array.isArray(cur.skills)) {
@@ -1003,6 +1044,63 @@ function copyRoleStandard(from, to) {
 }
 function copyTargetReqs(from, to) {
   to.tgt.reqs = from.tgt.reqs.filter((x) => x.text.trim()).map((x) => { const b = newReq(); b.area = x.area; b.text = x.text; b.weight = x.weight; b.level = x.level; return b; });
+}
+
+/* ---------- Pasting a list (v11) ----------
+   Text copied from a Word or PDF Job Description, or cells copied from Excel, becomes one requirement per row.
+   - Tab-separated text (a table): the column with the most text is used; number and weight columns are ignored.
+   - Bullets or numbers: a line without a bullet belongs to the item above it (PDF lines break mid-sentence).
+   - No bullets: one line is one item. */
+const PASTE_MAX = 40;
+const BULLET = /^(?:[-–—•·●○◦▪■□*]|\d{1,2}(?:\.\d{1,2})+(?:\.|(?=\s+[A-Z(]))|\d{1,2}[.)]|\(\d{1,2}\)|[A-Za-z][.)])\s+/;
+const HEAD_WORDS = /^(?:no\.?|nomor|bobot(?: \(%\))?|weight(?: \(%\))?|%|level|tingkat(?: kebutuhan)?|requirement level|key accountabilit(?:y|ies)|tanggung jawab(?: utama)?|requirements?|persyaratan|skills?|keahlian|kompetensi|jenis|type|uraian|deskripsi|description)$/i;
+const cleanItem = (t) => String(t || "").replace(/\s+/g, " ").trim();
+const goodItem = (t) => !!t && /[A-Za-z0-9À-￿]/.test(t);
+function parseTSV(t) {
+  const rows = []; let row = [], cell = "", q = false, i = 0;
+  const pushCell = () => { row.push(cell); cell = ""; };
+  const pushRow = () => { pushCell(); rows.push(row); row = []; };
+  while (i < t.length) {
+    const ch = t[i];
+    if (q) {
+      if (ch === '"') { if (t[i + 1] === '"') { cell += '"'; i += 2; continue; } q = false; i++; continue; }
+      cell += ch; i++; continue;
+    }
+    if (ch === '"' && cell === "") { q = true; i++; continue; }
+    if (ch === "\t") { pushCell(); i++; continue; }
+    if (ch === "\n") { pushRow(); i++; continue; }
+    cell += ch; i++;
+  }
+  if (cell !== "" || row.length) pushRow();
+  return rows;
+}
+function itemsFromLines(arr, noMerge) {
+  const ls = arr.map(cleanItem).filter(Boolean);
+  let out;
+  if (!noMerge && ls.filter((l) => BULLET.test(l)).length >= 2) {
+    out = [];
+    ls.forEach((l) => {
+      if (BULLET.test(l)) out.push(l.replace(BULLET, ""));
+      else if (out.length) out[out.length - 1] += " " + l;
+      else if (!/:$/.test(l)) out.push(l);
+    });
+  } else {
+    out = ls.map((l) => l.replace(/^[\s\-–—•·●○◦▪■□*]+/, "").replace(/^\d+[.)]\s+/, ""));
+  }
+  return out.map(cleanItem).filter(goodItem);
+}
+function parseList(text) {
+  const t = String(text || "").replace(/\r\n?/g, "\n").replace(/ /g, " ");
+  if (!t.trim()) return [];
+  if (t.indexOf("\t") < 0) return itemsFromLines(t.split("\n"));
+  let rows = parseTSV(t).map((r) => r.map(cleanItem)).filter((r) => r.some(Boolean));
+  const cols = Math.max(0, ...rows.map((r) => r.length));
+  if (cols < 2) return itemsFromLines(rows.map((r) => r[0] || ""), true);
+  if (rows.length > 1 && rows[0].filter((c) => HEAD_WORDS.test(c)).length >= 2) rows = rows.slice(1);
+  const score = [];
+  for (let c = 0; c < cols; c++) score[c] = rows.reduce((a, r) => { const v = r[c] || ""; return a + (/^[\d\s.,%\/-]*$/.test(v) ? 0 : v.length); }, 0);
+  const best = score.indexOf(Math.max(...score));
+  return itemsFromLines(rows.map((r) => r[best] || ""), true);   /* each table row is one item: no merging of lines */
 }
 
 /* ---------- Rules: identical to the Excel template (with the corrected 9-box) ---------- */
@@ -1614,7 +1712,8 @@ function reqBlocks(rows, o) {
     ctlSelect(`${p}.${i}.level`, x.level, C.levels, { aria: "Requirement level" }) + delBtn(o.del, i) + `</div>`; }).join("");
   const paste = (grp) => CTX.ro ? "" : `<details class="paste"><summary>${T("Paste a list instead", "Atau tempel sebuah daftar")}</summary><textarea id="paste-${who}-${grp}" rows="4" placeholder="One per line / Satu per baris"></textarea>` +
     `<button type="button" class="btn small" data-act="paste-rows" data-i="${who}:${grp}">${T("Add the lines as rows", "Tambahkan baris sebagai persyaratan")}</button></details>`;
-  const foot = (grp, en, id) => CTX.ro ? "" : `<div class="lfoot">${`<button type="button" class="btn small" data-act="add-row" data-i="${who}:${grp}">${T(en, id)}</button>`}</div>` + paste(grp);
+  const foot = (grp, en, id) => CTX.ro ? "" : `<div class="lfoot">${`<button type="button" class="btn small" data-act="add-row" data-i="${who}:${grp}">${T(en, id)}</button>`}</div>` +
+    noteP("Tip: copy the list from the Job Description, click an empty row and press Ctrl+V. Each line becomes one row.", "Tips: salin daftar dari Job Description, klik baris kosong, lalu tekan Ctrl+V. Setiap baris menjadi satu persyaratan.") + paste(grp);
   const out = [];
   if (!CTX.ro || A.length) out.push(blockHead("Key accountabilities", "Tanggung jawab utama", o.noteA[0], o.noteA[1]) +
     `<div class="lhead lrow cols-ka" style="border:0"><span></span><span>${reqHead}</span><span>${T("Weight (%)", "Bobot (%)")}</span><span>${T("Requirement level", "Tingkat kebutuhan")}</span><span></span></div>` + aRows +
@@ -1802,7 +1901,12 @@ function fromStep2(s, r) {
 function reqTable(s, r) {
   const reqs = CTX.ro ? s.tgt.reqs.map((x, i) => [x, i]).filter(([x]) => x.text.trim()) : s.tgt.reqs.map((x, i) => [x, i]);
   const donors = CTX.ro || s.tgt.reqs.some((x) => x.text.trim()) ? [] : CTX.cands.map((c, i) => [c, i]).filter(([c]) => c !== s && c.tgt.reqs.some((x) => x.text.trim()));
-  const copy = donors.length ? `<div class="copybar">${donors.map(([c, i]) => `<button type="button" class="btn small" data-act="copy-reqs" data-i="${i}">${T("Copy the requirements from " + candName(c, i), "Salin persyaratan dari " + candName(c, i))}</button>`).join("")}</div>` : "";
+  const curKA = CTX.ro ? 0 : s.cur.skills.filter((x) => isKA(x) && x.name.trim()).length;
+  const kaBtn = curKA && !s.tgt.reqs.some((x) => isKA(x) && x.text.trim())
+    ? `<button type="button" class="btn small primary" data-act="copy-ka">${T("Copy the Key accountabilities from the current role (step 1)", "Salin Key accountability dari role saat ini (step 1)")}</button>` : "";
+  const copy = kaBtn || donors.length ? `<div class="copybar">${kaBtn}${donors.map(([c, i]) => `<button type="button" class="btn small" data-act="copy-reqs" data-i="${i}">${T("Copy the requirements from " + candName(c, i), "Salin persyaratan dari " + candName(c, i))}</button>`).join("")}</div>` +
+    (kaBtn ? noteP("Only the text is copied (" + curKA + " row" + (curKA === 1 ? "" : "s") + "). Set the weight and the level yourself. If the target role asks for more, reword the row to the target level.",
+      "Yang disalin hanya teksnya (" + curKA + " baris). Bobot dan tingkat kebutuhan Anda isi sendiri. Jika role tujuan menuntut lebih, ubah kalimatnya ke level tujuan.") : "") : "";
   return copy + `<div class="list">` +
     reqBlocks(s.tgt.reqs, {
       bind: "tgt.reqs", key: "text", who: "tgt", del: "del-req", role: "target", weightNote: weightNote(r),
@@ -2113,6 +2217,7 @@ function renderReport(s) {
     $("who").innerHTML = bits.map((b) => `<span><b>${esc(b[0])}:</b> ${esc(b[1])}</span>`).join(" ");
     document.title = (current !== "recap" && S.meta.employee.trim() ? S.meta.employee.trim() + " - " : "") + "PPER Succession Assessment";
     updateSaveState();
+    $("sendbtn").hidden = cands.length < 2;
   }
   function updateSaveState() {
     const parts = [];
@@ -2122,12 +2227,15 @@ function renderReport(s) {
     $("savetext").textContent = parts.join(" ");
     $("udot").hidden = !(dirty && hasWork());
   }
-  function toast(en, id) {
+  /* act (v11): { en, id, fn } adds a button, used for Undo. */
+  function toast(en, id, act) {
     const t = $("toast");
-    t.innerHTML = `<span class="en">${esc(en)}</span>${id ? `<span class="id">${esc(id)}</span>` : ""}`;
+    t.innerHTML = `<div class="tmsg"><span class="en">${esc(en)}</span>${id ? `<span class="id">${esc(id)}</span>` : ""}</div>` +
+      (act ? `<button type="button" class="tact" data-toast-act="1"><span class="en">${esc(act.en)}</span><span class="id">${esc(act.id)}</span></button>` : "");
+    toast.act = act ? act.fn : null;
     t.classList.add("on");
     clearTimeout(toast.t);
-    toast.t = setTimeout(() => t.classList.remove("on"), 4200);
+    toast.t = setTimeout(() => { t.classList.remove("on"); toast.act = null; }, act ? 10000 : 4200);
   }
 
   /* ---------- state changes ---------- */
@@ -2147,9 +2255,7 @@ function renderReport(s) {
     pathSet(path, num ? Number(val) : val); touch(); render(true);
   }
 
-  function lines(text) {
-    return String(text || "").split(/\r?\n/).map((l) => l.replace(/^[\s\-•*]+/, "").replace(/^\d+[.)]\s+/, "").trim()).filter(Boolean);
-  }
+  const clone = (v) => JSON.parse(JSON.stringify(v));
   /* The two requirement lists: the current role (step 1) and the target role (6a). Each has block A (Key accountability) and block B (skills). */
   const LISTS = {
     cur: { arr: () => S.cur.skills, make: newSkill, key: "name", bind: "cur.skills" },
@@ -2163,20 +2269,55 @@ function renderReport(s) {
     touch(); render();
     const el = $("step").querySelector('[data-bind="' + L.bind + "." + at + "." + L.key + '"]'); if (el) el.focus();
   }
-  function pasteRows(k) {
-    const [who, grp] = String(k).split(":"), L = LISTS[who];
-    if (!L) return;
-    const ls = lines($("paste-" + who + "-" + grp).value);
-    if (!ls.length) { toast("Paste at least one line first.", "Tempel minimal satu baris dulu."); return; }
-    const arr = L.arr();
-    ls.forEach((t) => {
-      let row = arr.find((x) => !String(x[L.key]).trim() && isKA(x) === (grp === "ka"));
+  /* Put texts into the empty rows of one block (the row in focus first), then into new rows. Returns the Undo function. */
+  function fillRows(who, grp, texts, firstIdx) {
+    const L = LISTS[who], arr = L.arr(), owner = S, snap = clone(arr);
+    const inGrp = (x) => isKA(x) === (grp === "ka");
+    texts.forEach((t, n) => {
+      let row = null;
+      if (n === 0 && firstIdx != null && arr[firstIdx] && inGrp(arr[firstIdx]) && !String(arr[firstIdx][L.key]).trim()) row = arr[firstIdx];
+      if (!row) row = arr.find((x) => !String(x[L.key]).trim() && inGrp(x));
       if (!row) { row = L.make(grp === "ka" ? KA : ""); arr.splice(placeIndex(arr, grp), 0, row); }
       row[L.key] = t;
     });
-    touch(); render();
-    toast(ls.length + " row(s) added. Now set " + (grp === "ka" ? "the level." : "the type (Soft or Hard) and the level."), ls.length + " baris ditambahkan. Sekarang pilih " + (grp === "ka" ? "tingkat kebutuhan." : "jenis (Soft atau Hard) dan tingkat kebutuhan."));
+    return () => {
+      if (S !== owner || L.arr() !== arr) { toast("Undo is no longer possible here.", "Urungkan tidak lagi bisa dilakukan di sini."); return; }
+      arr.splice(0, arr.length, ...snap); touch(); render();
+      toast("Undone.", "Dibatalkan.");
+    };
   }
+  function addPasted(who, grp, items, firstIdx) {
+    const cut = items.length > PASTE_MAX ? items.length - PASTE_MAX : 0;
+    if (cut) items = items.slice(0, PASTE_MAX);
+    const undo = fillRows(who, grp, items, firstIdx);
+    touch(); render();
+    toast(items.length + " row(s) added" + (cut ? "; " + cut + " more left out (limit " + PASTE_MAX + " per paste)" : "") + ". Now set " + (grp === "ka" ? "the level." : "the type (Soft or Hard) and the level."),
+      items.length + " baris ditambahkan" + (cut ? "; " + cut + " lainnya tidak dimasukkan (batas " + PASTE_MAX + " per tempel)" : "") + ". Sekarang pilih " + (grp === "ka" ? "tingkat kebutuhan." : "jenis (Soft atau Hard) dan tingkat kebutuhan."),
+      { en: "Undo", id: "Urungkan", fn: undo });
+  }
+  function pasteRows(k) {
+    const [who, grp] = String(k).split(":"), L = LISTS[who];
+    if (!L) return;
+    const ls = parseList($("paste-" + who + "-" + grp).value);
+    if (!ls.length) { toast("Paste at least one line first.", "Tempel minimal satu baris dulu."); return; }
+    addPasted(who, grp, ls, null);
+  }
+  /* Ctrl+V of several lines (or table cells) into any requirement field becomes one row per item. One line pastes as usual. */
+  document.addEventListener("paste", (e) => {
+    const el = e.target, b = el && el.dataset && el.dataset.bind;
+    const m = b && /^(cur\.skills|tgt\.reqs)\.(\d+)\.(name|text)$/.exec(b);
+    if (!m) return;
+    const cd = e.clipboardData || window.clipboardData;
+    const txt = cd ? cd.getData("text") : "";
+    if (!txt || !/[\r\n\t]/.test(txt)) return;
+    const items = parseList(txt);
+    if (!items.length) return;
+    e.preventDefault();
+    if (items.length === 1) { el.setRangeText(items[0], el.selectionStart, el.selectionEnd, "end"); el.dispatchEvent(new Event("input", { bubbles: true })); return; }
+    const who = m[1] === "cur.skills" ? "cur" : "tgt", row = LISTS[who].arr()[Number(m[2])];
+    if (!row) return;
+    addPasted(who, isKA(row) ? "ka" : "sk", items, Number(m[2]));
+  });
 
   /* ---------- actions ---------- */
   const ACT = {
@@ -2222,6 +2363,19 @@ function renderReport(s) {
       copyTargetReqs(from, S); touch(); render();
       toast("Requirements copied from " + candName(from, Number(i)) + ". Check the weights and levels.", "Persyaratan disalin dari " + candName(from, Number(i)) + ". Periksa bobot dan tingkat kebutuhannya.");
     },
+    "copy-ka"() {
+      const texts = S.cur.skills.filter((x) => isKA(x) && x.name.trim()).map((x) => x.name.trim());
+      if (!texts.length) { toast("The current role (step 1) has no Key accountability yet.", "Role saat ini (step 1) belum punya Key accountability."); return; }
+      const undo = fillRows("tgt", "ka", texts, null);
+      touch(); render();
+      toast(texts.length + " Key accountability text(s) copied from the current role. Set the weight and the level of each.", texts.length + " teks Key accountability disalin dari role saat ini. Isi bobot dan tingkat kebutuhan tiap baris.", { en: "Undo", id: "Urungkan", fn: undo });
+    },
+    "send-open"() { openSendDialog(); },
+    "send-save"() { saveSelected(); },
+    "send-cancel"() { closeDlg("senddlg"); },
+    "merge-open"() { $("mergefile").click(); },
+    "merge-apply"() { applyMerge(); },
+    "merge-cancel"() { closeDlg("mergedlg"); mergeIn = null; },
     "open-file"() { $("file").click(); },
     "csv-summary"() { download(fileStemAll(cands) + "_summary.csv", summaryCSVAll(cands), "text/csv;charset=utf-8"); },
     "csv-gaps"() { download(fileStemAll(cands) + "_gaps.csv", gapsCSVAll(cands), "text/csv;charset=utf-8"); },
@@ -2300,7 +2454,7 @@ function renderReport(s) {
   }
 
   /* ---------- menu ---------- */
-  function menuItems() { return Array.from($("menupop").querySelectorAll('[role^="menuitem"]')); }
+  function menuItems() { return Array.from($("menupop").querySelectorAll('[role^="menuitem"]')).filter((x) => !x.hidden); }
   function setMenu(open, focusFirst) {
     $("mainmenu").classList.toggle("open", open);
     $("menubtn").setAttribute("aria-expanded", String(open));
@@ -2318,9 +2472,89 @@ function renderReport(s) {
   function saveFile() {
     download(fileStemAll(cands) + ".json", JSON.stringify({ app: APP_ID, version: 2, toolVersion: APP_VERSION, savedAt: new Date().toISOString(), active, cands }, null, 1), "application/json");
     dirty = false; lastFile = new Date(); updateSaveState();
-    toast("Saved. The file is in your Downloads folder. Open it later with Open file.", "Tersimpan. File ada di folder Downloads. Buka lagi nanti dengan Buka file.");
+    toast("Saved to your Downloads folder. Do not double-click the file: open it in this tool with Menu, then Open file.", "Tersimpan di folder Downloads. Jangan klik dua kali file-nya: buka di alat ini lewat Menu, lalu Buka file.");
   }
   function hasWork() { return cands.some(hasWorkIn); }
+  function closeDlg(id) { const d = $(id); if (d && d.open) d.close(); }
+  function showDlg(id) { const d = $(id); if (typeof d.showModal === "function") d.showModal(); else d.setAttribute("open", ""); }
+  const fileJSON = (list) => JSON.stringify({ app: APP_ID, version: 2, toolVersion: APP_VERSION, savedAt: new Date().toISOString(), active: 0, cands: list }, null, 1);
+
+  /* Save only some candidates, to send to the Head who assesses them. The file holds nothing of the others. */
+  function openSendDialog() {
+    if (cands.length < 2) { toast("This file holds one candidate. Use Save to file.", "File ini berisi satu kandidat. Pakai Simpan ke file."); return; }
+    $("sendlist").innerHTML = cands.map((c, i) => {
+      const sub = [c.meta.division, c.tgt.role].map((x) => x.trim()).filter(Boolean).join(" · ");
+      return `<label class="pickrow"><input type="checkbox" value="${i}"${i === active ? " checked" : ""}><span class="pn">${esc(candName(c, i))}</span><span class="pm">${sub ? esc(sub) : "—"}</span></label>`;
+    }).join("");
+    showDlg("senddlg");
+  }
+  function saveSelected() {
+    const idx = Array.from($("sendlist").querySelectorAll("input:checked")).map((x) => Number(x.value));
+    if (!idx.length) { toast("Tick at least one candidate.", "Centang minimal satu kandidat."); return; }
+    const sel = idx.map((i) => cands[i]).filter(Boolean);
+    download(fileStemAll(sel) + ".json", fileJSON(sel), "application/json");
+    closeDlg("senddlg");
+    toast("Saved " + sel.length + " candidate(s) to a file in Downloads. Send it with the tool. The Head opens it with Open file, not by double-clicking.", "Tersimpan " + sel.length + " kandidat ke file di Downloads. Kirim bersama alat ini. Head membukanya dengan Buka file, bukan klik dua kali.");
+  }
+
+  /* Add the candidates of a file that came back (from a Head) to this file. Same id, or else the same name, replaces the candidate here. */
+  let mergeIn = null;
+  function matchIn(list, c) {
+    let i = list.findIndex((x) => x.meta.cid === c.meta.cid);
+    if (i >= 0) return { i, by: "id" };
+    const nm = c.meta.employee.trim().toLowerCase();
+    if (nm) { i = list.findIndex((x) => x.meta.employee.trim().toLowerCase() === nm); if (i >= 0) return { i, by: "name" }; }
+    return { i: -1, by: "" };
+  }
+  function mergeFile(file) {
+    if (!file) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      let obj;
+      try { obj = JSON.parse(rd.result); } catch (e) { obj = null; }
+      if (!obj || obj.app !== APP_ID || !(obj.cands || obj.state)) { toast("This file is not a saved assessment from this tool.", "File ini bukan hasil simpan dari alat ini."); return; }
+      const inc = normalizeFile(obj).cands.filter(hasWorkIn);
+      if (!inc.length) { toast("This file has no candidate with entries.", "File ini tidak berisi kandidat yang sudah terisi."); return; }
+      mergeIn = inc;
+      const base = cands.length === 1 && !hasWorkIn(cands[0]) ? [] : cands;
+      $("mergelist").innerHTML = inc.map((c, n) => {
+        const m = matchIn(base, c);
+        const st = m.by === "id" ? ["Already in this file. Will be REPLACED by the version in the file.", "Sudah ada di file ini. Akan DIGANTI dengan versi dari file."]
+          : m.by === "name" ? ["Same name already in this file. Will be REPLACED. Check it is the same person.", "Nama yang sama sudah ada di file ini. Akan DIGANTI. Pastikan itu orang yang sama."]
+          : ["New. Will be added.", "Baru. Akan ditambahkan."];
+        const sub = [c.meta.division, c.tgt.role].map((x) => x.trim()).filter(Boolean).join(" · ");
+        return `<label class="pickrow${m.by ? " repl" : ""}"><input type="checkbox" value="${n}" checked><span class="pn">${esc(candName(c, n))}${sub ? ` <span class="ps">${esc(sub)}</span>` : ""}</span><span class="pm"><span class="en">${esc(st[0])}</span><span class="id">${esc(st[1])}</span></span></label>`;
+      }).join("");
+      $("mergewhen").textContent = obj.savedAt ? "File saved " + new Date(obj.savedAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) + ". " : "";
+      showDlg("mergedlg");
+    };
+    rd.readAsText(file);
+  }
+  function applyMerge() {
+    if (!mergeIn) return;
+    const picks = Array.from($("mergelist").querySelectorAll("input:checked")).map((x) => Number(x.value));
+    if (!picks.length) { toast("Tick at least one candidate.", "Centang minimal satu kandidat."); return; }
+    const before = clone(cands), beforeActive = active;
+    const list = cands.length === 1 && !hasWorkIn(cands[0]) ? [] : cands.slice();
+    let added = 0, replaced = 0, skipped = 0;
+    picks.forEach((n) => {
+      const c = mergeIn[n]; if (!c) return;
+      const m = matchIn(list, c);
+      if (m.i >= 0) { c.meta.cid = list[m.i].meta.cid; list[m.i] = c; replaced++; }
+      else if (list.length >= MAX_CANDS) skipped++;
+      else { list.push(c); added++; }
+    });
+    if (!list.length) list.push(defaultState());
+    cands = list; active = list.length === 1 ? 0 : Math.min(active, list.length - 1); S = cands[active];
+    mergeIn = null; closeDlg("mergedlg");
+    touch(); render();
+    toast("Merged: " + added + " added, " + replaced + " replaced" + (skipped ? ", " + skipped + " skipped (limit " + MAX_CANDS + ")" : "") + ".",
+      "Digabung: " + added + " ditambahkan, " + replaced + " diganti" + (skipped ? ", " + skipped + " dilewati (batas " + MAX_CANDS + ")" : "") + ".",
+      { en: "Undo", id: "Urungkan", fn: () => {
+        cands = before.map(normalize); active = Math.min(beforeActive, cands.length - 1); S = cands[active];
+        touch(); render(); toast("Undone.", "Dibatalkan.");
+      } });
+  }
   function openFile(file) {
     if (!file) return;
     const rd = new FileReader();
@@ -2370,6 +2604,7 @@ function renderReport(s) {
   document.addEventListener("change", (e) => {
     const el = e.target;
     if (el.id === "file") { openFile(el.files[0]); el.value = ""; return; }
+    if (el.id === "mergefile") { mergeFile(el.files[0]); el.value = ""; return; }
     if (el.dataset && el.dataset.addtype) {
       const path = el.dataset.addtype, add = el.value;
       if (!add) return;
@@ -2388,6 +2623,7 @@ function renderReport(s) {
   });
   document.addEventListener("click", (e) => {
     if (!e.target.closest("#mainmenu")) setMenu(false);
+    if (e.target.closest("[data-toast-act]")) { const f = toast.act; toast.act = null; $("toast").classList.remove("on"); if (f) f(); return; }
     const nav = e.target.closest("[data-nav]");
     if (nav) { e.preventDefault(); go(nav.dataset.nav); return; }
     const g = e.target.closest("[data-go]");
